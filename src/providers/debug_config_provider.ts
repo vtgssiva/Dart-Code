@@ -78,7 +78,7 @@ export class DebugConfigProvider implements DebugConfigurationProvider {
 			: DebuggerType.Dart;
 
 		// TODO: This cast feels nasty?
-		this.setupDebugConfig(folder, debugConfig as any as FlutterLaunchRequestArguments, isFlutter, this.deviceManager && this.deviceManager.currentDevice ? this.deviceManager.currentDevice.id : null);
+		this.setupDebugConfig(folder, debugConfig as any as FlutterLaunchRequestArguments, isFlutter, this.deviceManager && this.deviceManager.currentDeviceId);
 
 		// Debugger always uses uppercase drive letters to ensure our paths have them regardless of where they came from.
 		debugConfig.program = forceWindowsDriveLetterToUppercase(debugConfig.program);

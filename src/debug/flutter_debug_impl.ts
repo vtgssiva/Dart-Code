@@ -30,7 +30,8 @@ export class FlutterDebugSession extends DartDebugSession {
 	}
 
 	protected spawnProcess(args: FlutterLaunchRequestArguments): any {
-		const debug = !args.noDebug;
+		// Don't support debugging unless running on a single device.
+		const debug = !args.noDebug && args.deviceId !== "all";
 		let appArgs = [];
 
 		if (this.sourceFile) {

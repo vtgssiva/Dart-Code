@@ -2,11 +2,13 @@ import * as vs from "vscode";
 import { FlutterDaemon } from "./flutter_daemon";
 import * as f from "./flutter_types";
 
+type DeviceQuickPickItem = vs.QuickPickItem & { device: f.Device | "all" };
+
 export class FlutterDeviceManager implements vs.Disposable {
 	private subscriptions: vs.Disposable[] = [];
 	private statusBarItem: vs.StatusBarItem;
 	private devices: f.Device[] = [];
-	public currentDevice: f.Device = null;
+	public currentDevice: f.Device | "all" = null;
 
 	constructor(daemon: FlutterDaemon) {
 		this.statusBarItem = vs.window.createStatusBarItem(vs.StatusBarAlignment.Right, 0);
@@ -25,6 +27,13 @@ export class FlutterDeviceManager implements vs.Disposable {
 		this.subscriptions.forEach((s) => s.dispose());
 	}
 
+	public get currentDeviceId(): string {
+		if (this.currentDevice === "all")
+			return "all";
+		else
+			return this.currentDevice ? this.currentDevice.id : null;
+	}
+
 	public deviceAdded(dev: f.Device) {
 		this.devices.push(dev);
 		this.currentDevice = dev;
@@ -33,13 +42,13 @@ export class FlutterDeviceManager implements vs.Disposable {
 
 	public deviceRemoved(dev: f.Device) {
 		this.devices = this.devices.filter((d) => d.id !== dev.id);
-		if (this.currentDevice.id === dev.id)
+		if (this.currentDeviceId === dev.id)
 			this.currentDevice = this.devices.length === 0 ? null : this.devices[this.devices.length - 1];
 		this.updateStatusBar();
 	}
 
 	public async changeDevice(): Promise<void> {
-		const devices = this.devices
+		const devices: DeviceQuickPickItem[] = this.devices
 			.sort(this.deviceSortComparer.bind(this))
 			.map((d) => ({
 				description: d.platform,
@@ -47,6 +56,19 @@ export class FlutterDeviceManager implements vs.Disposable {
 				device: d,
 				label: d.name,
 			}));
+
+		// Add an All Devices option to the end (or top if it's selected).
+		const allDevicesItem: DeviceQuickPickItem = {
+			description: null,
+			detail: "This option will allow you to run on all connected devices but does not support tthe debugger",
+			device: "all",
+			label: "All Devices",
+		};
+		if (this.currentDeviceId === "all")
+			devices.unshift(allDevicesItem);
+		else
+			devices.push(allDevicesItem);
+
 		const d = await vs.window.showQuickPick(devices, { placeHolder: "Select a device to use" });
 		if (d) {
 			this.currentDevice = d.device;
@@ -63,7 +85,9 @@ export class FlutterDeviceManager implements vs.Disposable {
 	}
 
 	public updateStatusBar(): void {
-		if (this.currentDevice)
+		if (this.currentDevice === "all")
+			this.statusBarItem.text = `${this.devices.length} Devices Selected`;
+		else if (this.currentDevice)
 			this.statusBarItem.text = `${this.currentDevice.name} (${this.currentDevice.platform}${this.currentDevice.emulator ? " Emulator" : ""})`;
 		else
 			this.statusBarItem.text = "No Devices";
