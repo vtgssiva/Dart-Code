@@ -624,6 +624,12 @@
 					"description": "Prompt to get packages when opening a project with out of date packages.",
 					"scope": "resource"
 				},
+				"dart.showFlutterGutterIcons": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether to show previews of Flutter icons in the gutter.",
+					"scope": "window"
+				},
 				"dart.showLintNames": {
 					"type": "boolean",
 					"default": false,

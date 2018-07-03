@@ -19,6 +19,7 @@ import { TypeHierarchyCommand } from "./commands/type_hierarchy";
 import { config } from "./config";
 import { flutterExtensionIdentifier, forceWindowsDriveLetterToUppercase, platformName } from "./debug/utils";
 import { ClosingLabelsDecorations } from "./decorations/closing_labels_decorations";
+import { GutterIconsDecorations } from "./decorations/gutter_icons";
 import { HotReloadCoverageDecorations } from "./decorations/hot_reload_coverage_decorations";
 import { setUpDaemonMessageHandler } from "./flutter/daemon_message_handler";
 import { DaemonCapabilities, FlutterDaemon } from "./flutter/flutter_daemon";
@@ -316,6 +317,8 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	if (sdks.projectType !== util.ProjectType.Dart && config.previewHotReloadCoverageMarkers) {
 		context.subscriptions.push(new HotReloadCoverageDecorations(debug));
 	}
+	if (analyzer.capabilities.supportsFlutterOutline && config.showFlutterGutterIcons)
+		context.subscriptions.push(new GutterIconsDecorations(analyzer));
 
 	context.subscriptions.push(vs.commands.registerCommand("dart.package.openFile", (filePath) => {
 		if (!filePath) return;
@@ -453,7 +456,8 @@ function getSettingsThatRequireRestart() {
 		+ config.analyzeAngularTemplates
 		+ config.normalizeWindowsDriveLetters
 		+ config.analysisServerFolding
-		+ config.previewHotReloadCoverageMarkers;
+		+ config.previewHotReloadCoverageMarkers
+		+ config.showFlutterGutterIcons;
 }
 
 export async function deactivate(isRestart: boolean = false): Promise<void> {
