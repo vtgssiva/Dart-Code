@@ -264,6 +264,55 @@ describe("flutter run debugger", () => {
 		});
 	});
 
+	describe("can evaluate when not at breakpoint", function () { // tslint:disable-line:only-arrow-functions
+		beforeEach("skip if expression evaluation is known broken", function () {
+			if (ext.exports.analyzerCapabilities.expressionEvaluationIsBroken)
+				this.skip();
+		});
+
+		it("simple expressions", async () => {
+			await openFile(flutterHelloWorldMainFile);
+			const config = await startDebugger(flutterHelloWorldMainFile);
+			await Promise.all([
+				dc.configurationSequence(),
+				dc.launch(config),
+			]);
+
+			const evaluateResult = await dc.evaluate(`"test"`);
+			assert.ok(evaluateResult);
+			assert.equal(evaluateResult.result, `"test"`);
+			assert.equal(evaluateResult.variablesReference, 0);
+		});
+
+		it("complex expression expressions", async () => {
+			await openFile(flutterHelloWorldMainFile);
+			const config = await startDebugger(flutterHelloWorldMainFile);
+			await Promise.all([
+				dc.configurationSequence(),
+				dc.launch(config),
+			]);
+
+			const evaluateResult = await dc.evaluate(`(new DateTime.now()).year`);
+			assert.ok(evaluateResult);
+			assert.equal(evaluateResult.result, (new Date()).getFullYear());
+			assert.equal(evaluateResult.variablesReference, 0);
+		});
+
+		it("an expression that returns a variable", async () => {
+			await openFile(flutterHelloWorldMainFile);
+			const config = await startDebugger(flutterHelloWorldMainFile);
+			await Promise.all([
+				dc.configurationSequence(),
+				dc.launch(config),
+			]);
+
+			const evaluateResult = await dc.evaluate(`new DateTime.now()`);
+			assert.ok(evaluateResult);
+			assert.ok(evaluateResult.result.startsWith(new Date().getFullYear().toString()));
+			assert.ok(evaluateResult.variablesReference);
+		});
+	});
+
 	// Skipped due to https://github.com/flutter/flutter/issues/17838
 	it.skip("stops on exception", async () => {
 		await openFile(flutterHelloWorldBrokenFile);

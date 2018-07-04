@@ -837,51 +837,64 @@ export class DartDebugSession extends DebugSession {
 	}
 
 	protected async evaluateRequest(response: DebugProtocol.EvaluateResponse, args: DebugProtocol.EvaluateArguments): Promise<void> {
+		if (!this.observatory) {
+			this.errorResponse(response, "debugger not ready");
+			return;
+		}
+
 		const expression: string = args.expression;
 		// Stack frame scope; if not specified, the expression is evaluated in the global scope.
 		const frameId: number = args.frameId;
 		// Values are "watch", "repl", and "hover".
 		const context: string = args.context;
 
-		if (!frameId) {
-			this.errorResponse(response, "global evaluation not supported");
-			return;
-		}
-
-		const data = this.threadManager.getStoredData(frameId);
-		const thread = data.thread;
-		const frame: VMFrame = data.data as VMFrame;
+		const data = frameId ? this.threadManager.getStoredData(frameId) : undefined;
+		const thread = frameId ? data.thread : this.threadManager.threads[0];
 
 		try {
 			let result: DebuggerResult;
-			if ((expression === "$e" || expression.startsWith("$e.")) && thread.exceptionReference) {
-				const exceptionData = this.threadManager.getStoredData(thread.exceptionReference);
-				const exceptionInstanceRef = exceptionData && exceptionData.data as VMInstanceRef;
 
-				if (expression === "$e") {
-					response.body = {
-						result: await this.fullValueAsString(thread.ref, exceptionInstanceRef),
-						variablesReference: thread.exceptionReference,
-					};
-					this.sendResponse(response);
-					return;
-				}
-
-				const exceptionId = exceptionInstanceRef && exceptionInstanceRef.id;
-
-				if (exceptionId)
-					result = await this.observatory.evaluate(thread.ref.id, exceptionId, expression.substr(3));
-			}
-			if (!result) {
+			if (!frameId) {
 				// Don't wait more than a second for the response:
 				//   1. VS Code's watch window behaves badly when there are incomplete evaluate requests
 				//      https://github.com/Microsoft/vscode/issues/52317
 				//   2. The VM sometimes doesn't respond to your requests at all
 				//      https://github.com/flutter/flutter/issues/18595
 				result = await Promise.race([
-					this.observatory.evaluateInFrame(thread.ref.id, frame.index, expression),
+					this.observatory.evaluate(thread.ref.id, null, expression),
 					new Promise<never>((resolve, reject) => setTimeout(() => reject(new Error("<timed out>")), 1000)),
 				]);
+			} else {
+				const frame: VMFrame = data.data as VMFrame;
+				if ((expression === "$e" || expression.startsWith("$e.")) && thread.exceptionReference) {
+					const exceptionData = this.threadManager.getStoredData(thread.exceptionReference);
+					const exceptionInstanceRef = exceptionData && exceptionData.data as VMInstanceRef;
+
+					if (expression === "$e") {
+						response.body = {
+							result: await this.fullValueAsString(thread.ref, exceptionInstanceRef),
+							variablesReference: thread.exceptionReference,
+						};
+						this.sendResponse(response);
+						return;
+					}
+
+					const exceptionId = exceptionInstanceRef && exceptionInstanceRef.id;
+
+					if (exceptionId)
+						result = await this.observatory.evaluate(thread.ref.id, exceptionId, expression.substr(3));
+				}
+				if (!result) {
+					// Don't wait more than a second for the response:
+					//   1. VS Code's watch window behaves badly when there are incomplete evaluate requests
+					//      https://github.com/Microsoft/vscode/issues/52317
+					//   2. The VM sometimes doesn't respond to your requests at all
+					//      https://github.com/flutter/flutter/issues/18595
+					result = await Promise.race([
+						this.observatory.evaluateInFrame(thread.ref.id, frame.index, expression),
+						new Promise<never>((resolve, reject) => setTimeout(() => reject(new Error("<timed out>")), 1000)),
+					]);
+				}
 			}
 
 			// InstanceRef or ErrorRef
