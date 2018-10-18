@@ -43,6 +43,7 @@ import { setUpDaemonMessageHandler } from "./flutter/daemon_message_handler";
 import { FlutterDaemon } from "./flutter/flutter_daemon";
 import { FlutterOutlineProvider } from "./flutter/flutter_outline_view";
 import { setUpHotReloadOnSave } from "./flutter/hot_reload_save_handler";
+import { initLSP } from "./lsp/setup";
 import { AssistCodeActionProvider } from "./providers/assist_code_action_provider";
 import { DartCompletionItemProvider } from "./providers/dart_completion_item_provider";
 import { DartDiagnosticProvider } from "./providers/dart_diagnostic_provider";
@@ -171,6 +172,10 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 		analytics.sdkVersion = sdks.dartVersion;
 		checkForStandardDartSdkUpdates(logger, workspaceContext);
 		context.subscriptions.push(new StatusBarVersionTracker(workspaceContext));
+	}
+
+	if (config.previewLsp && config.previewLspArgs && config.previewLspArgs.length) {
+		context.subscriptions.push(initLSP(context, sdks));
 	}
 
 	// Fire up the analyzer process.
