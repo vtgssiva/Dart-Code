@@ -124,6 +124,7 @@ export function getSdkVersion(logger: Logger, sdkRoot?: string): string | undefi
 }
 
 export function isAnalyzable(document: TextDocument): boolean {
+	// Keep this in-sync with the LSP setup (fileEvents).
 	if (document.isUntitled || !fsPath(document.uri) || document.uri.scheme !== "file")
 		return false;
 
