@@ -104,6 +104,7 @@ let analytics: Analytics;
 let showTodos: boolean | undefined;
 let previousSettings: string;
 const loggers: Array<{ dispose: () => Promise<void> | void }> = [];
+let isUsingLsp = false;
 
 // TODO: If dev mode, subscribe to logs for errors/warnings and surface to UI
 // (with dispose calls)
@@ -175,6 +176,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 
 	if (config.previewLsp && config.previewLspArgs && config.previewLspArgs.length) {
 		context.subscriptions.push(initLSP(context, sdks));
+		isUsingLsp = true;
 	}
 
 	// Fire up the analyzer process.
@@ -226,8 +228,8 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 
 	// Set up providers.
 	// TODO: Do we need to push all these to subscriptions?!
-	const hoverProvider = new DartHoverProvider(logger, analyzer);
-	const formattingEditProvider = new DartFormattingEditProvider(logger, analyzer, extContext);
+	const hoverProvider = isUsingLsp ? undefined : new DartHoverProvider(logger, analyzer);
+	const formattingEditProvider = isUsingLsp ? undefined : new DartFormattingEditProvider(logger, analyzer, extContext);
 	context.subscriptions.push(formattingEditProvider);
 	const completionItemProvider = new DartCompletionItemProvider(logger, analyzer);
 	const referenceProvider = new DartReferenceProvider(analyzer);
@@ -248,8 +250,10 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	const rankingCodeActionProvider = new RankingCodeActionProvider();
 
 	const triggerCharacters = ".(${'\"/\\".split("");
-	context.subscriptions.push(vs.languages.registerHoverProvider(activeFileFilters, hoverProvider));
-	formattingEditProvider.registerDocumentFormatter(activeFileFilters);
+	if (hoverProvider)
+		context.subscriptions.push(vs.languages.registerHoverProvider(activeFileFilters, hoverProvider));
+	if (formattingEditProvider)
+		formattingEditProvider.registerDocumentFormatter(activeFileFilters);
 	context.subscriptions.push(vs.languages.registerCompletionItemProvider(activeFileFilters, completionItemProvider, ...triggerCharacters));
 	context.subscriptions.push(vs.languages.registerDefinitionProvider(activeFileFilters, referenceProvider));
 	context.subscriptions.push(vs.languages.registerReferenceProvider(activeFileFilters, referenceProvider));
@@ -287,9 +291,11 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	const statusReporter = new AnalyzerStatusReporter(logger, analyzer, workspaceContext, analytics);
 
 	// Set up diagnostics.
-	const diagnostics = vs.languages.createDiagnosticCollection("dart");
-	context.subscriptions.push(diagnostics);
-	const diagnosticsProvider = new DartDiagnosticProvider(analyzer, diagnostics);
+	if (!isUsingLsp) {
+		const diagnostics = vs.languages.createDiagnosticCollection("dart");
+		context.subscriptions.push(diagnostics);
+		const diagnosticsProvider = new DartDiagnosticProvider(analyzer, diagnostics);
+	}
 
 	// TODO: Currently calculating analysis roots requires the version to check if
 	// we need the package workaround. In future if we stop supporting server < 1.20.1 we
@@ -379,7 +385,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 
 	// Wire up handling of Hot Reload on Save.
 	if (workspaceContext.hasAnyFlutterProjects) {
-		setUpHotReloadOnSave(context, diagnostics, debugCommands);
+		setUpHotReloadOnSave(context, debugCommands);
 	}
 
 	// Register URI handler.
