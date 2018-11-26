@@ -114,7 +114,7 @@ export class FlutterMultiReloadDebugSession extends DebugSession {
 				this.performReload(false);
 				break;
 
-			case "fullRestart":
+			case "hotRestart":
 				this.performReload(true);
 				break;
 
@@ -124,7 +124,7 @@ export class FlutterMultiReloadDebugSession extends DebugSession {
 		}
 	}
 
-	private performReload(fullRestart: boolean) {
-		this.childProcess.stdin._write(fullRestart ? "R" : "r", "utf8", () => ({}));
+	private performReload(restart: boolean) {
+		this.childProcess.stdin._write(restart ? "R" : "r", "utf8", () => ({}));
 	}
 }
