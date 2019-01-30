@@ -7,6 +7,7 @@ import { dartVMPath } from "../../shared/constants";
 import { Sdks } from "../../shared/interfaces";
 import { config } from "../config";
 import { safeSpawn } from "../utils/processes";
+import { envUtils } from "../utils/vscode/editor";
 
 let lspClient: LanguageClient;
 
@@ -50,7 +51,7 @@ async function startLsp(context: vs.ExtensionContext, sdks: Sdks): Promise<vs.Di
 
 	lspClient.onReady().then(async () => {
 		const diagServer = await lspClient.sendRequest<{ port: number }>("dart/diagnosticServer");
-		util.openInBrowser(`http://localhost:${diagServer.port}`);
+		envUtils.openInBrowser(`http://localhost:${diagServer.port}`);
 	});
 
 	return lspClient.start();
