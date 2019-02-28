@@ -62,6 +62,7 @@ import { showUserPrompts } from "./user_prompts";
 import * as util from "./utils";
 import { fsPath } from "./utils";
 import { addToLogHeader, clearLogHeader, getExtensionLogPath, log, logError, logTo } from "./utils/log";
+import { detectTheme, Theme } from "./utils/vscode/theme_detector";
 import { DartPackagesProvider } from "./views/packages_view";
 import { TestResultsProvider } from "./views/test_view";
 
@@ -89,6 +90,18 @@ let extensionLogger: { dispose: () => Promise<void> | void };
 export function activate(context: vs.ExtensionContext, isRestart: boolean = false) {
 	if (!extensionLogger)
 		extensionLogger = logTo(getExtensionLogPath(), [LogCategory.General]);
+
+	detectTheme(context.subscriptions).then((theme) => {
+		if (theme === Theme.Dark) {
+			console.log("Using Dark theme!");
+		} else if (theme === Theme.Light) {
+			console.log("Using Light theme!");
+		} else if (theme === Theme.HighContrast) {
+			console.log("Using High Contrast theme!");
+		} else {
+			console.log("Failed to parse theme");
+		}
+	});
 
 	util.logTime("Code called activate");
 	// Wire up a reload command that will re-initialise everything.
