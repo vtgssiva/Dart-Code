@@ -11,6 +11,7 @@ import { internalApiSymbol } from "../src/symbols";
 import { fsPath, isAnalyzable, ProjectType, vsCodeVersionConstraint } from "../src/utils";
 import { log, logError, logTo, logWarn } from "../src/utils/log";
 import { waitFor } from "../src/utils/promises";
+import psList = require("ps-list");
 
 export const ext = vs.extensions.getExtension(dartCodeExtensionIdentifier);
 export let extApi: InternalExtensionApi;
@@ -219,8 +220,10 @@ beforeEach("set logger", async function () {
 	const logPath = path.join(logFolder, logFile);
 
 	const logger = logTo(logPath);
+	await logRunningProcesses("start");
 
 	deferUntilLast(async (testResult?: "passed" | "failed") => {
+		await logRunningProcesses("end");
 		await logger.dispose();
 		// On CI, we delete logs for passing tests to save money on S3 :-)
 		if (process.env.CI && testResult === "passed") {
@@ -230,6 +233,18 @@ beforeEach("set logger", async function () {
 		}
 	});
 });
+
+async function logRunningProcesses(when: string): Promise<void> {
+	function isDartOrFlutter(s: string) {
+		return s && (s.toLowerCase().indexOf("dart") !== -1 || s.toLowerCase().indexOf("flutter") !== -1);
+	}
+
+	const procs = await psList();
+	for (const proc of procs) {
+		if (isDartOrFlutter(proc.name) || isDartOrFlutter(proc.cmd))
+			log(`(Test ${when}): ${proc.pid} (${proc.ppid}): ${proc.name}: ${proc.cmd}`);
+	}
+}
 
 export let sb: sinon.SinonSandbox;
 beforeEach("create sinon sandbox", function () { sb = sinon.createSandbox(); }); // tslint:disable-line:only-arrow-functions
