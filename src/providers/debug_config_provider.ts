@@ -22,6 +22,7 @@ import { Device } from "../flutter/flutter_types";
 import { locateBestProjectRoot } from "../project";
 import { PubGlobal } from "../pub/global";
 import { WebDev } from "../pub/webdev";
+import { DartCapabilities } from "../sdk/capabilities";
 import { dartVMPath, flutterPath, pubPath, pubSnapshotPath } from "../sdk/utils";
 import { checkProjectSupportsPubRunTest, fsPath, isDartFile, isFlutterProjectFolder, isFlutterWebProjectFolder, isFlutterWorkspaceFolder, isInsideFolderNamed, isTestFile, isTestFileOrFolder, Sdks } from "../utils";
 import { log, logError, logWarn } from "../utils/log";
@@ -38,7 +39,7 @@ let hasShownFlutterWebDebugWarning = false;
 export class DebugConfigProvider implements DebugConfigurationProvider {
 	private debugServers: { [index: string]: net.Server } = {};
 
-	constructor(private sdks: Sdks, private analytics: Analytics, private pubGlobal: PubGlobal, private deviceManager: FlutterDeviceManager, private flutterCapabilities: FlutterCapabilities) { }
+	constructor(private sdks: Sdks, private analytics: Analytics, private pubGlobal: PubGlobal, private deviceManager: FlutterDeviceManager, private dartCapabilities: DartCapabilities, private flutterCapabilities: FlutterCapabilities) { }
 
 	public provideDebugConfigurations(folder: WorkspaceFolder | undefined, token?: CancellationToken): ProviderResult<DebugConfiguration[]> {
 		const isFlutter = isFlutterWorkspaceFolder(folder);
@@ -457,6 +458,9 @@ export class DebugConfigProvider implements DebugConfigurationProvider {
 		debugConfig.debugExternalLibraries = debugConfig.debugExternalLibraries !== undefined && debugConfig.debugExternalLibraries !== null
 			? debugConfig.debugExternalLibraries
 			: conf.debugExternalLibraries;
+		debugConfig.debuggerHandlesPathsEverywhereForBreakpoints = debugConfig.debuggerHandlesPathsEverywhereForBreakpoints !== undefined && debugConfig.debuggerHandlesPathsEverywhereForBreakpoints !== null
+			? debugConfig.debuggerHandlesPathsEverywhereForBreakpoints
+			: this.dartCapabilities.handlesPathsEverywhereForBreakpoints;
 		debugConfig.evaluateGettersInDebugViews = debugConfig.evaluateGettersInDebugViews || conf.evaluateGettersInDebugViews;
 		if (isFlutter) {
 			debugConfig.forceFlutterVerboseMode = isLogging || isCI;

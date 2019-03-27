@@ -176,6 +176,7 @@ export interface DartLaunchRequestArguments extends DebugProtocol.LaunchRequestA
 	dartPath: string;
 	debugSdkLibraries: boolean;
 	debugExternalLibraries: boolean;
+	debuggerHandlesPathsEverywhereForBreakpoints: boolean;
 	evaluateGettersInDebugViews: boolean;
 	env: any;
 	program: string;
