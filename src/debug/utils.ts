@@ -90,24 +90,32 @@ export function findFile(file: string, startLocation: string) {
 	return undefined;
 }
 
-export function formatPathForVm(file: string): string {
-	// Handle drive letter inconsistencies.
-	file = forceWindowsDriveLetterToUppercase(file);
+export function formatSourceLocationForVm(source: DebugProtocol.Source): string | undefined {
+	if (source.name && source.name.startsWith("dart:")) {
+		// TODO: We seemt o end up with multiple "copies" of this file in VS Code
+		// it spawns new tabs, even though the uris look the same.
 
-	// Convert any Windows backslashes to forward slashes.
-	file = file.replace(/\\/g, "/");
+		// Convert dart:foo/bar to org-dartlang-sdk:///sdk/lib/foo/bar
+		return `org-dartlang-sdk:///sdk/lib/${source.name.substring(5)}`;
+	} else if (source.path) {
+		let filePath = source.path;
 
-	// Remove any existing file:/(//) prefixes.
-	file = file.replace(/^file:\/+/, ""); // TODO: Does this case ever get hit? Will it be over-encoded?
+		// Handle drive letter inconsistencies.
+		filePath = forceWindowsDriveLetterToUppercase(filePath);
 
-	// Remove any remaining leading slashes.
-	file = file.replace(/^\/+/, "");
+		// Convert any Windows backslashes to forward slashes.
+		filePath = filePath.replace(/\\/g, "/");
 
-	// Ensure a single slash prefix.
-	if (file.startsWith("dart:"))
-		return file;
-	else
-		return `file:///${encodeURI(file)}`;
+		// Remove any existing file:/(//) prefixes.
+		filePath = filePath.replace(/^file:\/+/, ""); // TODO: Does this case ever get hit? Will it be over-encoded?
+
+		// Remove any remaining leading slashes.
+		filePath = filePath.replace(/^\/+/, "");
+
+		return `file:///${encodeURI(filePath)}`;
+	} else {
+		return undefined;
+	}
 }
 
 export function forceWindowsDriveLetterToUppercase(p: string): string {

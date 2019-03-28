@@ -11,7 +11,7 @@ import { safeSpawn } from "../utils/processes";
 import { DebuggerResult, ObservatoryConnection, SourceReportKind, VM, VMClass, VMClassRef, VMErrorRef, VMEvent, VMFrame, VMInstance, VMInstanceRef, VMIsolate, VMIsolateRef, VMLibrary, VMMapEntry, VMObj, VMScript, VMScriptRef, VMSentinel, VMSourceLocation, VMSourceReport, VMStack, VMTypeRef } from "./dart_debug_protocol";
 import { PackageMap } from "./package_map";
 import { ThreadInfo, ThreadManager } from "./threads";
-import { CoverageData, DartAttachRequestArguments, DartLaunchRequestArguments, FileLocation, flatMap, formatPathForVm, LogCategory, LogMessage, LogSeverity, throttle, uniq, uriToFilePath } from "./utils";
+import { CoverageData, DartAttachRequestArguments, DartLaunchRequestArguments, FileLocation, flatMap, formatSourceLocationForVm, LogCategory, LogMessage, LogSeverity, throttle, uniq, uriToFilePath } from "./utils";
 
 const maxValuesToCallToString = 15;
 // Prefix that appears at the start of stack frame names that are unoptimized
@@ -463,12 +463,16 @@ export class DartDebugSession extends DebugSession {
 		// Format the path correctly for the VM. In older SDKs we had to use
 		// package: URIs in many places, however as of 2.2.2 (?) file URIs should
 		// work everywhere.
-		// TODO: The `|| source.name` stops a crash (#1566) but doesn't actually make
-		// the breakpoints work. This needs more work.
 		const mapToPackagePath = this.packageMap && !this.debuggerHandlesPathsEverywhereForBreakpoints;
 		const uri = mapToPackagePath
-			? (this.packageMap.convertFileToPackageUri(source.path) || formatPathForVm(source.path || source.name))
-			: formatPathForVm(source.path || source.name);
+			? (this.packageMap.convertFileToPackageUri(source.path) || formatSourceLocationForVm(source))
+			: formatSourceLocationForVm(source);
+
+		if (!uri) {
+			// TODO: Ensure this is logged!
+			this.errorResponse(response, `Unable to map source ${source.name}/${source.path} for VM`);
+			return;
+		}
 
 		try {
 			const result = await this.threadManager.setBreakpoints(uri, breakpoints);

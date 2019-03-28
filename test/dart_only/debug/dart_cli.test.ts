@@ -279,7 +279,7 @@ describe("dart cli debugger", () => {
 	});
 
 	// Known not to work; https://github.com/Dart-Code/Dart-Code/issues/821
-	it.skip("stops at a breakpoint in the SDK", async () => {
+	it.skip("stops at a breakpoint in the SDK set at edit time", async () => {
 		await openFile(helloWorldMainFile);
 		// Get location for `print`
 		const def = await getDefinition(positionOf("pri^nt("));
@@ -294,6 +294,8 @@ describe("dart cli debugger", () => {
 		assert.equal(frames[0].source!.path, fsPath(def.uri));
 		assert.equal(frames[0].source!.name, "dart:core/print.dart");
 	});
+
+	it.skip("stops at a breakpoint in the SDK set after stepping in");
 
 	it("stops at a breakpoint in an external package", async () => {
 		await openFile(helloWorldHttpFile);
