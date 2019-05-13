@@ -2,7 +2,7 @@ import * as vs from "vscode";
 import { Analyzer } from "../analysis/analyzer";
 import { isAnalyzable } from "../utils";
 
-const nonBreakingSpace = " ";
+const nonBreakingSpace = "\xa0";
 
 export class WidgetGuide {
 	constructor(public readonly start: vs.Position, public readonly end: vs.Position) { }
@@ -12,41 +12,9 @@ export class TestLineDecorations implements vs.Disposable {
 	private subscriptions: vs.Disposable[] = [];
 	private activeEditor?: vs.TextEditor;
 
-	private readonly leftBorderDecoration = vs.window.createTextEditorDecorationType({
-		border: "1px solid white",
-		borderWidth: "0 0 0 1px",
+	private readonly borderDecoration = vs.window.createTextEditorDecorationType({
 		rangeBehavior: vs.DecorationRangeBehavior.ClosedClosed,
 	});
-	private readonly noBorderSpacing = vs.window.createTextEditorDecorationType({
-		borderSpacing: "0",
-		rangeBehavior: vs.DecorationRangeBehavior.ClosedClosed,
-	});
-	private readonly leftBorderForBlankLinesDecoration = vs.window.createTextEditorDecorationType({
-		border: "1px solid white",
-		borderWidth: "0 0 0 1px",
-		before: {
-			width: "8em",
-			contentText: nonBreakingSpace,
-		},
-		rangeBehavior: vs.DecorationRangeBehavior.ClosedClosed,
-	});
-	private readonly bottomBorderDecoration = vs.window.createTextEditorDecorationType({
-		border: "1px solid white",
-		borderWidth: "0 0 1px 0",
-		//color: "orange",
-		before: {
-			// backgroundColor: "#ff0000",
-			// color: "#666666",
-			// width: "10px",
-			// contentText: ".",
-		},
-		// opacity: "0.1",
-		rangeBehavior: vs.DecorationRangeBehavior.ClosedClosed,
-	});
-	// private readonly fadedDecorationType = vs.window.createTextEditorDecorationType({
-	// 	opacity: "0.5",
-	// 	rangeBehavior: vs.DecorationRangeBehavior.ClosedClosed,
-	// });
 
 	constructor(private readonly analyzer: Analyzer) {
 		this.subscriptions.push(vs.window.onDidChangeActiveTextEditor((e) => this.setTrackingFile(e)));
@@ -71,9 +39,7 @@ export class TestLineDecorations implements vs.Disposable {
 		if (!this.activeEditor)
 			return;
 
-		const leftDecorations: vs.DecorationOptions[] = [];
-		const leftDecorationsForBlankLines: vs.DecorationOptions[] = [];
-		const bottomDecorations: vs.DecorationOptions[] = [];
+		const decorations: vs.DecorationOptions[] = [];
 
 		const doc = this.activeEditor.document;
 		const text = doc.getText();
@@ -91,36 +57,35 @@ export class TestLineDecorations implements vs.Disposable {
 			const startColumn = guide.start.character;
 			const endLine = guide.end.line;
 
-			for (let lineNumber = guide.start.line + 1; lineNumber <= guide.end.line; lineNumber++) {
-				if (doc.lineAt(lineNumber).isEmptyOrWhitespace) {
-					leftDecorationsForBlankLines.push({
-						range: new vs.Range(
-							new vs.Position(lineNumber, startColumn),
-							new vs.Position(lineNumber, startColumn),
-						),
-					} as vs.DecorationOptions);
-				} else {
-					leftDecorations.push({
-						range: new vs.Range(
-							new vs.Position(lineNumber, startColumn),
-							new vs.Position(lineNumber, startColumn),
-						),
-					} as vs.DecorationOptions);
-				}
+			for (let lineNumber = guide.start.line + 1; lineNumber <= guide.end.line - 1; lineNumber++) {
+				decorations.push({
+					range: new vs.Range(
+						new vs.Position(lineNumber, 0),
+						new vs.Position(lineNumber, 0),
+					),
+					renderOptions: {
+						before: {
+							contentText: nonBreakingSpace.repeat(startColumn) + "┃",
+							width: "0",
+						},
+					},
+				} as vs.DecorationOptions);
 			}
-			bottomDecorations.push({
+			decorations.push({
 				range: new vs.Range(
 					new vs.Position(endLine, startColumn),
 					new vs.Position(endLine, guide.end.character),
 				),
+				renderOptions: {
+					before: {
+						contentText: "┗" + "━".repeat(guide.end.character - startColumn - 1),
+						width: "0",
+					},
+				},
 			} as vs.DecorationOptions);
 		}
 
-
-		this.activeEditor.setDecorations(this.noBorderSpacing, [new vs.Range(doc.positionAt(0), doc.positionAt(doc.getText().length))]);
-		this.activeEditor.setDecorations(this.leftBorderDecoration, leftDecorations);
-		this.activeEditor.setDecorations(this.leftBorderForBlankLinesDecoration, leftDecorationsForBlankLines);
-		this.activeEditor.setDecorations(this.bottomBorderDecoration, bottomDecorations);
+		this.activeEditor.setDecorations(this.borderDecoration, decorations);
 	}
 
 	private setTrackingFile(editor: vs.TextEditor) {
