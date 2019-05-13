@@ -12,13 +12,28 @@ export class TestLineDecorations implements vs.Disposable {
 	private subscriptions: vs.Disposable[] = [];
 	private activeEditor?: vs.TextEditor;
 
-	private readonly decorationType = vs.window.createTextEditorDecorationType({
-		// border: "1px solid white",
-		// borderWidth: "0 0 0 1px",
-		// color: "orange",
+	private readonly leftBorderDecoration = vs.window.createTextEditorDecorationType({
+		border: "1px solid white",
+		borderWidth: "0 0 0 1px",
+		//color: "orange",
 		before: {
-			color: "#666666",
-			width: "0",
+			// backgroundColor: "#ff0000",
+			// color: "#666666",
+			// width: "10px",
+			// contentText: ".",
+		},
+		// opacity: "0.1",
+		rangeBehavior: vs.DecorationRangeBehavior.ClosedClosed,
+	});
+	private readonly bottomBorderDecoration = vs.window.createTextEditorDecorationType({
+		border: "1px solid white",
+		borderWidth: "0 0 1px 0",
+		//color: "orange",
+		before: {
+			// backgroundColor: "#ff0000",
+			// color: "#666666",
+			// width: "10px",
+			// contentText: ".",
 		},
 		// opacity: "0.1",
 		rangeBehavior: vs.DecorationRangeBehavior.ClosedClosed,
@@ -30,51 +45,64 @@ export class TestLineDecorations implements vs.Disposable {
 
 	constructor(private readonly analyzer: Analyzer) {
 		this.subscriptions.push(vs.window.onDidChangeActiveTextEditor((e) => this.setTrackingFile(e)));
+		this.subscriptions.push(vs.workspace.onDidChangeTextDocument(async (e) => this.setTrackingFile(await vs.window.showTextDocument(e.document))));
 		if (vs.window.activeTextEditor)
 			this.setTrackingFile(vs.window.activeTextEditor);
 
+	}
+
+	private indexesOf(searchString: string, input: string, startPosition = 0) {
+		const results = [];
+		let i = startPosition;
+		// tslint:disable-next-line: no-conditional-assignment
+		while ((i = input.indexOf(searchString, i + 1)) >= 0) {
+			results.push(i);
+			i++;
+		}
+		return results;
 	}
 
 	private update() {
 		if (!this.activeEditor)
 			return;
 
-		const decorations: vs.DecorationOptions[] = [];
+		const leftDecorations: vs.DecorationOptions[] = [];
+		const bottomDecorations: vs.DecorationOptions[] = [];
 
 		const doc = this.activeEditor.document;
-		const pos = doc.positionAt;
-		const guides = [
-			new WidgetGuide(pos(4648), pos(4717)),
-		];
+		const text = doc.getText();
+		const demoStart = text.indexOf("// START-DEMO");
+		const demoEnd = text.indexOf("// END-DEMO");
+		const startIndex = text.indexOf("child: Column(", demoStart);
+
+		const guides = this.indexesOf("KeyRow(<Widget>[", text, demoStart)
+			.filter((i) => i <= demoEnd)
+			.map(
+				(i) => new WidgetGuide(doc.positionAt(startIndex), doc.positionAt(i)),
+			);
 
 		for (const guide of guides) {
 			const startColumn = guide.start.character;
 			const endLine = guide.end.line;
 
-			for (let lineNumber = guide.start.line + 1; lineNumber <= endLine; lineNumber++) {
-				decorations.push({
+			for (let lineNumber = guide.start.line + 1; lineNumber <= guide.end.line; lineNumber++) {
+				leftDecorations.push({
 					range: new vs.Range(
 						new vs.Position(lineNumber, startColumn),
 						new vs.Position(lineNumber, startColumn),
 					),
-					renderOptions: {
-						before: {
-							contentText: lineNumber === endLine ? "┗" : "┃",
-							width: "0",
-						},
-					},
 				} as vs.DecorationOptions);
 			}
+			bottomDecorations.push({
+				range: new vs.Range(
+					new vs.Position(endLine, startColumn),
+					new vs.Position(endLine, guide.end.character),
+				),
+			} as vs.DecorationOptions);
 		}
 
-		// decorations.push({
-		// 	range: new vs.Range(
-		// 		this.activeEditor.document.lineAt(72).range.start.translate({ characterDelta: 6 }),
-		// 		this.activeEditor.document.lineAt(72).range.start.translate({ characterDelta: 12 }),
-		// 	),
-		// } as vs.DecorationOptions);
-
-		this.activeEditor.setDecorations(this.decorationType, decorations);
+		this.activeEditor.setDecorations(this.leftBorderDecoration, leftDecorations);
+		this.activeEditor.setDecorations(this.bottomBorderDecoration, bottomDecorations);
 	}
 
 	private setTrackingFile(editor: vs.TextEditor) {
