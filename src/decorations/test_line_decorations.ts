@@ -15,14 +15,19 @@ export class TestLineDecorations implements vs.Disposable {
 	private readonly leftBorderDecoration = vs.window.createTextEditorDecorationType({
 		border: "1px solid white",
 		borderWidth: "0 0 0 1px",
-		//color: "orange",
+		rangeBehavior: vs.DecorationRangeBehavior.ClosedClosed,
+	});
+	private readonly noBorderSpacing = vs.window.createTextEditorDecorationType({
+		borderSpacing: "0",
+		rangeBehavior: vs.DecorationRangeBehavior.ClosedClosed,
+	});
+	private readonly leftBorderForBlankLinesDecoration = vs.window.createTextEditorDecorationType({
+		border: "1px solid white",
+		borderWidth: "0 0 0 1px",
 		before: {
-			// backgroundColor: "#ff0000",
-			// color: "#666666",
-			// width: "10px",
-			// contentText: ".",
+			width: "8em",
+			contentText: nonBreakingSpace,
 		},
-		// opacity: "0.1",
 		rangeBehavior: vs.DecorationRangeBehavior.ClosedClosed,
 	});
 	private readonly bottomBorderDecoration = vs.window.createTextEditorDecorationType({
@@ -67,6 +72,7 @@ export class TestLineDecorations implements vs.Disposable {
 			return;
 
 		const leftDecorations: vs.DecorationOptions[] = [];
+		const leftDecorationsForBlankLines: vs.DecorationOptions[] = [];
 		const bottomDecorations: vs.DecorationOptions[] = [];
 
 		const doc = this.activeEditor.document;
@@ -86,12 +92,21 @@ export class TestLineDecorations implements vs.Disposable {
 			const endLine = guide.end.line;
 
 			for (let lineNumber = guide.start.line + 1; lineNumber <= guide.end.line; lineNumber++) {
-				leftDecorations.push({
-					range: new vs.Range(
-						new vs.Position(lineNumber, startColumn),
-						new vs.Position(lineNumber, startColumn),
-					),
-				} as vs.DecorationOptions);
+				if (doc.lineAt(lineNumber).isEmptyOrWhitespace) {
+					leftDecorationsForBlankLines.push({
+						range: new vs.Range(
+							new vs.Position(lineNumber, startColumn),
+							new vs.Position(lineNumber, startColumn),
+						),
+					} as vs.DecorationOptions);
+				} else {
+					leftDecorations.push({
+						range: new vs.Range(
+							new vs.Position(lineNumber, startColumn),
+							new vs.Position(lineNumber, startColumn),
+						),
+					} as vs.DecorationOptions);
+				}
 			}
 			bottomDecorations.push({
 				range: new vs.Range(
@@ -101,7 +116,10 @@ export class TestLineDecorations implements vs.Disposable {
 			} as vs.DecorationOptions);
 		}
 
+
+		this.activeEditor.setDecorations(this.noBorderSpacing, [new vs.Range(doc.positionAt(0), doc.positionAt(doc.getText().length))]);
 		this.activeEditor.setDecorations(this.leftBorderDecoration, leftDecorations);
+		this.activeEditor.setDecorations(this.leftBorderForBlankLinesDecoration, leftDecorationsForBlankLines);
 		this.activeEditor.setDecorations(this.bottomBorderDecoration, bottomDecorations);
 	}
 
