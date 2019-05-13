@@ -4,6 +4,10 @@ import { isAnalyzable } from "../utils";
 
 const nonBreakingSpace = " ";
 
+export class WidgetGuide {
+	constructor(public readonly start: vs.Position, public readonly end: vs.Position) { }
+}
+
 export class TestLineDecorations implements vs.Disposable {
 	private subscriptions: vs.Disposable[] = [];
 	private activeEditor?: vs.TextEditor;
@@ -36,43 +40,27 @@ export class TestLineDecorations implements vs.Disposable {
 			return;
 
 		const decorations: vs.DecorationOptions[] = [];
-		const lines = [
-			{ start: [71, 4], children: [[73, 1]] },
-			{ start: [73, 6], children: [[74, 1], [102, 1]] },
-			{ start: [74, 8], children: [[76, 1], [97, 1]] },
-			{ start: [102, 8], children: [[104, 2]] },
-			{ start: [104, 10], children: [[107, 2]] },
-			{ start: [107, 14], children: [[108, 2]] },
+
+		const doc = this.activeEditor.document;
+		const pos = doc.positionAt;
+		const guides = [
+			new WidgetGuide(pos(4648), pos(4717)),
 		];
 
-		for (const line of lines) {
-			const startColumn = line.start[1];
-			const endLine = line.children[line.children.length - 1][0];
+		for (const guide of guides) {
+			const startColumn = guide.start.character;
+			const endLine = guide.end.line;
 
-			for (let lineNumber = line.start[0] + 1; lineNumber <= endLine; lineNumber++) {
+			for (let lineNumber = guide.start.line + 1; lineNumber <= endLine; lineNumber++) {
 				decorations.push({
 					range: new vs.Range(
-						new vs.Position(lineNumber - 1, startColumn),
-						new vs.Position(lineNumber - 1, startColumn),
+						new vs.Position(lineNumber, startColumn),
+						new vs.Position(lineNumber, startColumn),
 					),
 					renderOptions: {
 						before: {
 							contentText: lineNumber === endLine ? "┗" : "┃",
 							width: "0",
-						},
-					},
-				} as vs.DecorationOptions);
-			}
-
-			for (const child of line.children) {
-				decorations.push({
-					range: new vs.Range(
-						new vs.Position(child[0] - 1, startColumn + 1),
-						new vs.Position(child[0], startColumn + 1),
-					),
-					renderOptions: {
-						before: {
-							contentText: "━".repeat(child[1]),
 						},
 					},
 				} as vs.DecorationOptions);
