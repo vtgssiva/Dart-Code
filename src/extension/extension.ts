@@ -300,6 +300,11 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	const connectedSetup = analyzer.registerForServerConnected((sc) => {
 		connectedSetup.dispose();
 
+		// Set up commands for Dart editors.
+		context.subscriptions.push(new EditCommands(context, analyzer));
+		context.subscriptions.push(new RefactorCommands(analyzer));
+
+
 		if (analyzer.capabilities.supportsClosingLabels && config.closingLabels) {
 			context.subscriptions.push(new ClosingLabelsDecorations(analyzer));
 		}
@@ -359,10 +364,6 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 
 	// Register URI handler.
 	context.subscriptions.push(vs.window.registerUriHandler(new DartUriHandler(flutterCapabilities)));
-
-	// Set up commands for Dart editors.
-	context.subscriptions.push(new EditCommands(context, analyzer));
-	context.subscriptions.push(new RefactorCommands(context, analyzer));
 
 	// Register misc commands.
 	context.subscriptions.push(new TypeHierarchyCommand(analyzer));

@@ -19,11 +19,10 @@ const refactorOptions: { [key: string]: (feedback?: as.RefactoringFeedback) => a
 export class RefactorCommands implements vs.Disposable {
 	private commands: vs.Disposable[] = [];
 
-	constructor(private readonly context: vs.ExtensionContext, private readonly analyzer: Analyzer) {
-		this.commands.push(
-			vs.commands.registerCommand("_dart.performRefactor", this.performRefactor, this),
-			vs.workspace.onWillRenameFile((e) => this.onWillRenameResource(e)),
-		);
+	constructor(private readonly analyzer: Analyzer) {
+		this.commands.push(vs.commands.registerCommand("_dart.performRefactor", this.performRefactor, this));
+		if (analyzer.capabilities.supportsMoveFile)
+			this.commands.push(vs.workspace.onWillRenameFile((e) => this.onWillRenameResource(e)));
 	}
 
 	private async performRefactor(document: vs.TextDocument, range: vs.Range, refactorKind: as.RefactoringKind): Promise<void> {
@@ -183,6 +182,7 @@ export class RefactorCommands implements vs.Disposable {
 	}
 
 	private getFilesToRename(rename: { oldPath: string, newPath: string }): Array<{ oldPath: string, newPath: string }> {
+		// TODO: Support folders?
 		const filesToRename: Array<{ oldPath: string, newPath: string }> = [];
 		if (fs.statSync(rename.oldPath).isFile()) {
 			// TODO: if (isAnalyzableAndInWorkspace(rename.oldPath))
