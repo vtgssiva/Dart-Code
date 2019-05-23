@@ -6,6 +6,7 @@ import * as WebSocket from "ws";
 import { dartVMPath } from "../../shared/constants";
 import { Sdks } from "../../shared/interfaces";
 import { config } from "../config";
+import { openInBrowser } from "../utils";
 import { safeSpawn } from "../utils/processes";
 import { envUtils } from "../utils/vscode/editor";
 
