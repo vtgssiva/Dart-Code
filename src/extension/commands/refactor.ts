@@ -140,7 +140,7 @@ export class RefactorCommands implements vs.Disposable {
 			e.waitUntil(edits);
 	}
 
-	private async getRenameEdits(filesToRename: Array<{ oldPath: string, newPath: string }>): Promise<vs.WorkspaceEdit> {
+	private async getRenameEdits(filesToRename: Array<{ oldPath: string, newPath: string }>): Promise<vs.WorkspaceEdit | undefined> {
 		const changes = new vs.WorkspaceEdit();
 
 		for (const file of filesToRename) {
@@ -154,12 +154,13 @@ export class RefactorCommands implements vs.Disposable {
 				validateOnly: false,
 			});
 			const applyEdits = await this.shouldApplyEdits(editResult);
-			if (applyEdits) {
-				if (hasOverlappingEdits(editResult.change)) {
-					vs.window.showErrorMessage("Unable to update references; edits contain ambigious positions.");
-					logError(`Unable to apply MOVE_FILE edits due to ambigious edits:\n\n${JSON.stringify(editResult.change, undefined, 4)}`);
-					return;
-				}
+			if (!applyEdits)
+				return;
+
+			if (hasOverlappingEdits(editResult.change)) {
+				vs.window.showErrorMessage("Unable to update references; edits contain ambigious positions.");
+				logError(`Unable to apply MOVE_FILE edits due to ambigious edits:\n\n${JSON.stringify(editResult.change, undefined, 4)}`);
+				return;
 			}
 
 			for (const edit of editResult.change.edits) {
