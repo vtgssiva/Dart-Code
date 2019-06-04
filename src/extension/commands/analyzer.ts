@@ -1,5 +1,6 @@
 import * as vs from "vscode";
 import { Analyzer } from "../analysis/analyzer";
+import { DiagnosticServerRequest } from "../lsp/custom_protocol";
 import { lspClient } from "../lsp/setup";
 import { envUtils } from "../utils/vscode/editor";
 
@@ -10,7 +11,7 @@ export class AnalyzerCommands {
 			await envUtils.openInBrowser(`http://127.0.0.1:${res.port}/`);
 
 			if (lspClient) {
-				const diagServer = await lspClient.sendRequest<{ port: number }>("dart/diagnosticServer");
+				const diagServer = await lspClient.sendRequest(DiagnosticServerRequest.type, undefined);
 				await envUtils.openInBrowser(`http://127.0.0.1:${diagServer.port}`);
 			}
 		}));
