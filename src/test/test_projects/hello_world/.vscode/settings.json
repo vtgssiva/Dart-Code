@@ -10,4 +10,5 @@
 	],
 	"dart.showIgnoreQuickFixes": true,
 	"dart.showDartDeveloperLogs": true,
+	"dart.previewLsp": true
 }
