@@ -8,8 +8,8 @@ import { config } from "../config";
 import { DasAnalyzer } from "./analyzer_das";
 
 export class Analyzer extends DasAnalyzer {
-	constructor(logger: Logger, dartVMPath: string, analyzerPath: string) {
-		super(logger, dartVMPath, analyzerPath);
+	constructor(logger: Logger, sdks: Sdks) {
+		super(logger, sdks);
 	}
 }
 
