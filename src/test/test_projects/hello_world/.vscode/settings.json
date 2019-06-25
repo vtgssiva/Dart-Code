@@ -9,6 +9,5 @@
 		"lib/excluded"
 	],
 	"dart.showIgnoreQuickFixes": true,
-	"dart.showDartDeveloperLogs": true,
-	"dart.previewLsp": true
+	"dart.showDartDeveloperLogs": true
 }
