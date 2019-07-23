@@ -18,9 +18,6 @@ export class FlutterCapabilities {
 	// TODO: Confirm.
 	get supportsWebProjects() { return false; }
 	get supportsFlutterCreateListSamples() { return versionIsAtLeast(this.version, "1.3.10"); }
-	// TODO: Figure this out.
-	get webSupportsDebugging() { return false; }
-	get supportsUrisForFlutterAttach() { return versionIsAtLeast(this.version, "1.5.3"); }
 }
 
 export class DaemonCapabilities {
