@@ -97,6 +97,14 @@ export const flutterWebHelloWorldExampleSubFolder = vs.Uri.file(path.join(fsPath
 export const flutterWebHelloWorldExampleSubFolderMainFile = vs.Uri.file(path.join(fsPath(flutterWebHelloWorldExampleSubFolder), "lib/main.dart"));
 export const flutterWebBrokenFolder = vs.Uri.file(path.join(fsPath(flutterWebProjectContainerFolder), "broken"));
 export const flutterWebBrokenMainFile = vs.Uri.file(path.join(fsPath(flutterWebBrokenFolder), "lib/main.dart"));
+export const flutterWebHelloWorldBrokenFile = vs.Uri.file(path.join(fsPath(flutterWebHelloWorldFolder), "lib/broken.dart"));
+export const flutterWebHelloWorldHttpFile = vs.Uri.file(path.join(fsPath(flutterWebHelloWorldFolder), "lib/http.dart"));
+export const flutterWebHelloWorldGettersFile = vs.Uri.file(path.join(fsPath(flutterWebHelloWorldFolder), "lib/getters.dart"));
+export const flutterWebHelloWorldPathFile = vs.Uri.file(path.join(fsPath(flutterWebHelloWorldFolder), "lib/path.dart"));
+export const flutterWebHelloWorldLocalPackageFile = vs.Uri.file(path.join(fsPath(flutterWebHelloWorldFolder), "lib/local_package.dart"));
+export const flutterWebHelloWorldThrowInSdkFile = vs.Uri.file(path.join(fsPath(flutterWebHelloWorldFolder), "lib/throw_in_sdk_code.dart"));
+export const flutterWebHelloWorldThrowInExternalPackageFile = vs.Uri.file(path.join(fsPath(flutterWebHelloWorldFolder), "lib/throw_in_external_package.dart"));
+export const flutterWebHelloWorldThrowInLocalPackageFile = vs.Uri.file(path.join(fsPath(flutterWebHelloWorldFolder), "lib/throw_in_local_package.dart"));
 // Flutter for web tests
 export const flutterWebTestMainFile = vs.Uri.file(path.join(fsPath(flutterWebHelloWorldFolder), "test/basic_test.dart"));
 export const flutterWebTestBrokenFile = vs.Uri.file(path.join(fsPath(flutterWebHelloWorldFolder), "test/broken_test.dart"));
