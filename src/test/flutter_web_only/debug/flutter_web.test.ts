@@ -11,7 +11,7 @@ import { DartDebugClient } from "../../dart_debug_client";
 import { ensureFrameCategories, ensureMapEntry, ensureVariable, ensureVariableWithIndex, isExternalPackage, isLocalPackage, isSdkFrame, isUserCode, killFlutterTester } from "../../debug_helpers";
 import { activate, defer, delay, ext, extApi, flutterWebBrokenMainFile, flutterWebHelloWorldBrokenFile, flutterWebHelloWorldExampleSubFolderMainFile, flutterWebHelloWorldFolder, flutterWebHelloWorldGettersFile, flutterWebHelloWorldHttpFile, flutterWebHelloWorldLocalPackageFile, flutterWebHelloWorldMainFile, flutterWebHelloWorldPathFile, flutterWebHelloWorldThrowInExternalPackageFile, flutterWebHelloWorldThrowInLocalPackageFile, flutterWebHelloWorldThrowInSdkFile, getDefinition, getLaunchConfiguration, getPackages, logger, openFile, positionOf, sb, setConfigForTest, waitForResult, watchPromise } from "../../helpers";
 
-describe("flutter for web debugger", () => {
+describe.only("flutter for web debugger", () => {
 	beforeEach("skip for Windows", function () {
 		// Skip on Windows temporarily until we figure out this is:
 		// https://github.com/dart-lang/webdev/issues/514
@@ -420,11 +420,11 @@ describe("flutter for web debugger", () => {
 	it("stops at a breakpoint in a deferred file");
 
 	// Known not to work; https://github.com/Dart-Code/Dart-Code/issues/821
-	it.skip("stops at a breakpoint in the SDK");
+	it("stops at a breakpoint in the SDK");
 
 	it("stops at a breakpoint in an external package");
 
-	it("steps into the SDK if debugSdkLibraries is true", async () => {
+	it.skip("steps into the SDK if debugSdkLibraries is true", async () => {
 		await openFile(flutterWebHelloWorldMainFile);
 		// Get location for `print`
 		const printCall = positionOf("pri^nt(");
@@ -454,7 +454,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("does not step into the SDK if debugSdkLibraries is false", async () => {
+	it.skip("does not step into the SDK if debugSdkLibraries is false", async () => {
 		await openFile(flutterWebHelloWorldMainFile);
 		// Get location for `print`
 		const printCall = positionOf("pri^nt(");
@@ -477,7 +477,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("steps into an external library if debugExternalLibraries is true", async () => {
+	it.skip("steps into an external library if debugExternalLibraries is true", async () => {
 		await openFile(flutterWebHelloWorldHttpFile);
 		// Get location for `http.read(`
 		const httpReadCall = positionOf("http.re^ad(");
@@ -507,7 +507,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("does not step into an external library if debugExternalLibraries is false", async () => {
+	it.skip("does not step into an external library if debugExternalLibraries is false", async () => {
 		await openFile(flutterWebHelloWorldHttpFile);
 		// Get location for `http.read(`
 		const httpReadCall = positionOf("http.re^ad(");
@@ -530,7 +530,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("steps into a local library even if debugExternalLibraries is false", async () => {
+	it.skip("steps into a local library even if debugExternalLibraries is false", async () => {
 		await openFile(flutterWebHelloWorldLocalPackageFile);
 		// Get location for `printMyThing()`
 		const printMyThingCall = positionOf("printMy^Thing(");
@@ -562,7 +562,7 @@ describe("flutter for web debugger", () => {
 
 	it("downloads SDK source code from the VM");
 
-	it("correctly marks non-debuggable SDK frames when debugSdkLibraries is false", async () => {
+	it.skip("correctly marks non-debuggable SDK frames when debugSdkLibraries is false", async () => {
 		await openFile(flutterWebHelloWorldThrowInSdkFile);
 		const config = await startDebugger(flutterWebHelloWorldThrowInSdkFile, { debugSdkLibraries: false });
 		await Promise.all([
@@ -582,7 +582,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("correctly marks debuggable SDK frames when debugSdkLibraries is true", async () => {
+	it.skip("correctly marks debuggable SDK frames when debugSdkLibraries is true", async () => {
 		await openFile(flutterWebHelloWorldThrowInSdkFile);
 		const config = await startDebugger(flutterWebHelloWorldThrowInSdkFile, { debugSdkLibraries: true });
 		await Promise.all([
@@ -602,7 +602,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("correctly marks non-debuggable external library frames when debugExternalLibraries is false", async () => {
+	it.skip("correctly marks non-debuggable external library frames when debugExternalLibraries is false", async () => {
 		await openFile(flutterWebHelloWorldThrowInExternalPackageFile);
 		const config = await startDebugger(flutterWebHelloWorldThrowInExternalPackageFile, { debugExternalLibraries: false });
 		await Promise.all([
@@ -622,7 +622,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("correctly marks debuggable top frames even if not debuggable, if breakpoint/stepping", async () => {
+	it.skip("correctly marks debuggable top frames even if not debuggable, if breakpoint/stepping", async () => {
 		// There is an exception(!) to the deemphasiezed rule. If the reason we stopped was not an exception, the top
 		// frame should never be deemphasized, as the user has explicitly decided to break (or step) there.
 		await openFile(flutterWebHelloWorldPathFile);
@@ -659,7 +659,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("correctly marks debuggable external library frames when debugExternalLibraries is true", async () => {
+	it.skip("correctly marks debuggable external library frames when debugExternalLibraries is true", async () => {
 		await openFile(flutterWebHelloWorldThrowInExternalPackageFile);
 		const config = await startDebugger(flutterWebHelloWorldThrowInExternalPackageFile, { debugExternalLibraries: true });
 		await Promise.all([
@@ -679,7 +679,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("correctly marks debuggable local library frames even when debugExternalLibraries is false", async () => {
+	it.skip("correctly marks debuggable local library frames even when debugExternalLibraries is false", async () => {
 		await openFile(flutterWebHelloWorldThrowInLocalPackageFile);
 		const config = await startDebugger(flutterWebHelloWorldThrowInLocalPackageFile, { debugExternalLibraries: false });
 		await Promise.all([
@@ -741,15 +741,15 @@ describe("flutter for web debugger", () => {
 		};
 	}
 
-	it("stops at a breakpoint with a condition returning true", testBreakpointCondition("1 == 1", true));
-	it("stops at a breakpoint with a condition returning 1", testBreakpointCondition("3 - 2", true));
-	it("doesn't stop at a breakpoint with a condition returning a string", testBreakpointCondition("'test'", false));
-	it("doesn't stop at a breakpoint with a condition returning false", testBreakpointCondition("1 == 0", false));
-	it("doesn't stop at a breakpoint with a condition returning 0", testBreakpointCondition("3 - 3", false));
-	it("doesn't stop at a breakpoint with a condition returning null", testBreakpointCondition("print('test');", false));
-	it("reports errors evaluating breakpoint conditions", testBreakpointCondition("1 + '1'", false, "Debugger failed to evaluate expression `1 + '1'`"));
+	it.skip("stops at a breakpoint with a condition returning true", testBreakpointCondition("1 == 1", true));
+	it.skip("stops at a breakpoint with a condition returning 1", testBreakpointCondition("3 - 2", true));
+	it.skip("doesn't stop at a breakpoint with a condition returning a string", testBreakpointCondition("'test'", false));
+	it.skip("doesn't stop at a breakpoint with a condition returning false", testBreakpointCondition("1 == 0", false));
+	it.skip("doesn't stop at a breakpoint with a condition returning 0", testBreakpointCondition("3 - 3", false));
+	it.skip("doesn't stop at a breakpoint with a condition returning null", testBreakpointCondition("print('test');", false));
+	it.skip("reports errors evaluating breakpoint conditions", testBreakpointCondition("1 + '1'", false, "Debugger failed to evaluate expression `1 + '1'`"));
 
-	it("logs expected text (and does not stop) at a logpoint", async () => {
+	it.skip("logs expected text (and does not stop) at a logpoint", async () => {
 		await openFile(flutterWebHelloWorldMainFile);
 		const config = await watchPromise("logs_expected_text->startDebugger", startDebugger(flutterWebHelloWorldMainFile));
 		await Promise.all([
@@ -771,7 +771,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("provides local variables when stopped at a breakpoint", async () => {
+	it.skip("provides local variables when stopped at a breakpoint", async () => {
 		await setConfigForTest("dart", "previewToStringInDebugViews", true);
 		await openFile(flutterWebHelloWorldMainFile);
 		const debugConfig = await startDebugger(flutterWebHelloWorldMainFile);
@@ -856,7 +856,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("excludes type args from local variables when stopped at a breakpoint in a generic method", async () => {
+	it.skip("excludes type args from local variables when stopped at a breakpoint in a generic method", async () => {
 		await openFile(flutterWebHelloWorldMainFile);
 		const debugConfig = await startDebugger(flutterWebHelloWorldMainFile);
 		await dc.hitBreakpoint(debugConfig, {
@@ -875,7 +875,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("includes getters in variables when stopped at a breakpoint", async () => {
+	it.skip("includes getters in variables when stopped at a breakpoint", async () => {
 		await openFile(flutterWebHelloWorldGettersFile);
 		const config = await startDebugger(flutterWebHelloWorldGettersFile);
 		await dc.hitBreakpoint(config, {
@@ -897,7 +897,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("watch expressions provide same info as locals", async () => {
+	it.skip("watch expressions provide same info as locals", async () => {
 		await openFile(flutterWebHelloWorldMainFile);
 		const config = await startDebugger(flutterWebHelloWorldMainFile);
 		await dc.hitBreakpoint(config, {
@@ -923,7 +923,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("evaluateName evaluates to the expected value", async () => {
+	it.skip("evaluateName evaluates to the expected value", async () => {
 		await openFile(flutterWebHelloWorldMainFile);
 		const config = await startDebugger(flutterWebHelloWorldMainFile);
 		await dc.hitBreakpoint(config, {
@@ -961,7 +961,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	describe("can evaluate at breakpoint", () => {
+	describe.skip("can evaluate at breakpoint", () => {
 		it("simple expressions", async () => {
 			await openFile(flutterWebHelloWorldMainFile);
 			const config = await startDebugger(flutterWebHelloWorldMainFile);
@@ -1067,7 +1067,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("does not stop on exception in noDebug mode", async () => {
+	it.skip("does not stop on exception in noDebug mode", async () => {
 		await openFile(flutterWebHelloWorldBrokenFile);
 		const config = await startDebugger(flutterWebHelloWorldBrokenFile);
 		config.noDebug = true;
@@ -1149,7 +1149,7 @@ describe("flutter for web debugger", () => {
 		]);
 	});
 
-	it("renders correct output for structured errors", async () => {
+	it.skip("renders correct output for structured errors", async () => {
 		await setConfigForTest("dart", "previewFlutterStructuredErrors", true);
 		await openFile(flutterWebHelloWorldBrokenFile);
 		const config = await startDebugger(flutterWebHelloWorldBrokenFile);
