@@ -45,9 +45,6 @@ function spawn(logger: Logger, sdks: Sdks): Thenable<StreamInfo> {
 
 	const process = safeSpawn(undefined, vmPath, args);
 
-	console.log(vmPath);
-	console.log(args);
-
 	if (true) {
 		return Promise.resolve({ reader: process.stdout, writer: process.stdin });
 	} else {
