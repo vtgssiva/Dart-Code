@@ -5,13 +5,6 @@ import { analyzerSnapshotPath } from "../../shared/constants";
 import { Logger, Sdks } from "../../shared/interfaces";
 import { extensionVersion } from "../../shared/vscode/extension_utils";
 import { config } from "../config";
-import { DasAnalyzer } from "./analyzer_das";
-
-export class Analyzer extends DasAnalyzer {
-	constructor(logger: Logger, sdks: Sdks) {
-		super(logger, sdks);
-	}
-}
 
 export function getAnalyzerArgs(logger: Logger, sdks: Sdks, isLsp: boolean) {
 	const analyzerPath = config.analyzerPath || path.join(sdks.dart, analyzerSnapshotPath);

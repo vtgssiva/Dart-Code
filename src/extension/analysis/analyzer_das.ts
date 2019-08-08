@@ -1,10 +1,12 @@
 import * as path from "path";
 import * as vs from "vscode";
 import * as as from "../../shared/analysis_server_types";
+import { Analyzer } from "../../shared/analyzer";
 import { dartVMPath } from "../../shared/constants";
 import { LogCategory } from "../../shared/enums";
 import { Logger, Sdks } from "../../shared/interfaces";
 import { PromiseCompleter, versionIsAtLeast } from "../../shared/utils";
+import { Analytics } from "../analytics";
 import { config } from "../config";
 import { escapeShell, reloadExtension } from "../utils";
 import { getAnalyzerArgs } from "./analyzer";
@@ -38,7 +40,32 @@ export class AnalyzerCapabilities {
 	get supportsIncludedImports() { return versionIsAtLeast(this.version, "1.27.1"); }
 }
 
-export class DasAnalyzer extends AnalyzerGen {
+export class DasAnalyzer extends Analyzer {
+	public readonly client: DasAnalyzerClient;
+
+	constructor(logger: Logger, analytics: Analytics, sdks: Sdks) {
+		super();
+		this.client = new DasAnalyzerClient(logger, sdks);
+
+		const connectedEvent = this.client.registerForServerConnected((sc) => {
+			// TODO: Lsp equiv.
+			analytics.analysisServerVersion = sc.version;
+			this.onReadyCompleter.resolve();
+			connectedEvent.dispose();
+		});
+
+		this.client.registerForServerStatus((params) => {
+			if (params.analysis)
+				this.onAnalysisStatusChangeEmitter.fire({ isAnalyzing: params.analysis.isAnalyzing });
+		});
+	}
+
+	public getDiagnosticServerPort(): Promise<{ port: number; }> {
+		return this.client.diagnosticGetServerPort();
+	}
+}
+
+export class DasAnalyzerClient extends AnalyzerGen {
 	private lastDiagnostics?: as.ContextData[];
 	private launchArgs: string[];
 	private version?: string;

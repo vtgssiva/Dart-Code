@@ -1,12 +1,12 @@
 import { CancellationToken, OutputChannel, Position, Range, RenameProvider, TextDocument, Uri, workspace, WorkspaceEdit } from "vscode";
 import * as as from "../../shared/analysis_server_types";
 import { fsPath } from "../../shared/vscode/utils";
-import { Analyzer } from "../analysis/analyzer";
+import { DasAnalyzerClient } from "../analysis/analyzer_das";
 import * as channels from "../commands/channels";
 import { toRange } from "../utils";
 
 export class DartRenameProvider implements RenameProvider {
-	constructor(private readonly analyzer: Analyzer) { }
+	constructor(private readonly analyzer: DasAnalyzerClient) { }
 
 	public provideRenameEdits(document: TextDocument, position: Position, newName: string, token: CancellationToken): Thenable<WorkspaceEdit> {
 		return this.doRename(document, position, newName, token);

@@ -1,7 +1,7 @@
 import { CancellationToken, CodeAction, CodeActionContext, CodeActionKind, CodeActionProviderMetadata, DocumentSelector, Range, TextDocument } from "vscode";
 import * as as from "../../shared/analysis_server_types";
 import { fsPath } from "../../shared/vscode/utils";
-import { Analyzer } from "../analysis/analyzer";
+import { DasAnalyzerClient } from "../analysis/analyzer_das";
 import { isAnalyzableAndInWorkspace } from "../utils";
 import { RankedCodeActionProvider } from "./ranking_code_action_provider";
 
@@ -13,7 +13,7 @@ const supportedRefactors: { [key: string]: string } = {
 };
 
 export class RefactorCodeActionProvider implements RankedCodeActionProvider {
-	constructor(public readonly selector: DocumentSelector, private readonly analyzer: Analyzer) { }
+	constructor(public readonly selector: DocumentSelector, private readonly analyzer: DasAnalyzerClient) { }
 
 	public readonly rank = 50;
 

@@ -2,7 +2,7 @@ import * as vs from "vscode";
 import * as as from "../../shared/analysis_server_types";
 import { Logger } from "../../shared/interfaces";
 import { fsPath } from "../../shared/vscode/utils";
-import { Analyzer } from "../analysis/analyzer";
+import { DasAnalyzerClient } from "../analysis/analyzer_das";
 import * as editors from "../editors";
 import { toRangeOnLine } from "../utils";
 import { showCode } from "../utils/vscode/editor";
@@ -10,7 +10,7 @@ import { showCode } from "../utils/vscode/editor";
 export class TypeHierarchyCommand implements vs.Disposable {
 	private disposables: vs.Disposable[] = [];
 
-	constructor(private readonly logger: Logger, private readonly analyzer: Analyzer) {
+	constructor(private readonly logger: Logger, private readonly analyzer: DasAnalyzerClient) {
 		this.disposables.push(
 			vs.commands.registerCommand("dart.showTypeHierarchy", this.showTypeHierarchy, this),
 		);

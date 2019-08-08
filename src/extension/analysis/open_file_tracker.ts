@@ -1,12 +1,12 @@
 import { Disposable, TextDocument, Uri, window, workspace } from "vscode";
 import { FlutterOutline, FoldingRegion, Occurrences, Outline } from "../../shared/analysis_server_types";
-import { Logger, IAmDisposable } from "../../shared/interfaces";
+import { IAmDisposable, Logger } from "../../shared/interfaces";
 import { fsPath } from "../../shared/vscode/utils";
 import { WorkspaceContext } from "../../shared/workspace";
 import { isUsingLsp } from "../extension";
 import { locateBestProjectRoot } from "../project";
 import * as util from "../utils";
-import { Analyzer } from "./analyzer";
+import { DasAnalyzerClient } from "./analyzer_das";
 
 const outlines: { [key: string]: Outline } = {};
 const flutterOutlines: { [key: string]: FlutterOutline } = {};
@@ -16,10 +16,12 @@ const pubRunTestSupport: { [key: string]: boolean } = {};
 let lastPriorityFiles: string[] = [];
 let lastSubscribedFiles: string[] = [];
 
+// TODO: Need an LSP version of this to get outlines etc.
+
 class OpenFileTracker implements IAmDisposable {
 	private disposables: Disposable[] = [];
 
-	constructor(private readonly logger: Logger, private readonly analyzer: Analyzer, private readonly wsContext: WorkspaceContext) {
+	constructor(private readonly logger: Logger, private readonly analyzer: DasAnalyzerClient, private readonly wsContext: WorkspaceContext) {
 		// Reset these, since they're state from the last analysis server
 		// (when we change SDK and thus change this).
 		lastPriorityFiles = [];
@@ -127,7 +129,7 @@ class OpenFileTracker implements IAmDisposable {
 // make this available on WorkspaceContext or similar.
 
 export const openFileTracker = {
-	create(logger: Logger, analyzer: Analyzer, wsContext: WorkspaceContext): IAmDisposable {
+	create(logger: Logger, analyzer: DasAnalyzerClient, wsContext: WorkspaceContext): IAmDisposable {
 		return new OpenFileTracker(logger, analyzer, wsContext);
 	},
 
