@@ -189,7 +189,8 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 
 	// Fire up the analyzer process.
 	const analyzerStartTime = new Date();
-	analyzer = new Analyzer(logger, sdks);
+	if (!isUsingLsp)
+		analyzer = new Analyzer(logger, sdks);
 	context.subscriptions.push(analyzer);
 
 	// Log analysis server startup time when we get the welcome message/version.
