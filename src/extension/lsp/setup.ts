@@ -10,15 +10,12 @@ import { safeSpawn } from "../utils/processes";
 
 export let lspClient: LanguageClient;
 
-export function initLSP(logger: Logger, sdks: Sdks) {
+export function initLSP(logger: Logger, sdks: Sdks): vs.Disposable {
 	vs.window.showInformationMessage("LSP preview is enabled!");
-	const client = startLsp(logger, sdks);
-	return {
-		dispose: async (): Promise<void> => (await client).dispose(),
-	};
+	return startLsp(logger, sdks);
 }
 
-async function startLsp(logger: Logger, sdks: Sdks): Promise<vs.Disposable> {
+function startLsp(logger: Logger, sdks: Sdks): vs.Disposable {
 	const clientOptions: LanguageClientOptions = {
 		initializationOptions: {
 			// 	onlyAnalyzeProjectsWithOpenFiles: true,
@@ -41,18 +38,22 @@ function spawn(logger: Logger, sdks: Sdks): Thenable<StreamInfo> {
 	// TODO: Replace with constructing an Analyzer that passes LSP flag (but still reads config
 	// from paths etc) and provide it's process.
 	const vmPath = path.join(sdks.dart, dartVMPath);
-	const args = getAnalyzerArgs(logger, sdks, config.previewLsp);
+	const args = getAnalyzerArgs(logger, sdks, true);
 
 	const process = safeSpawn(undefined, vmPath, args);
+	// TODO: Set up logging for LSP.
+	// logProcess(logger, LogCategory.Analyzer, process);
 
-	console.log(vmPath);
-	console.log(args);
+	if (true) {
+		return Promise.resolve({ reader: process.stdout, writer: process.stdin });
+	} else {
+		// TODO: Run this through logger once the in-process logging changes
+		const reader = process.stdout.pipe(new LoggingTransform("<=="));
+		const writer = new LoggingTransform("==>");
+		writer.pipe(process.stdin);
 
-	const reader = process.stdout.pipe(new LoggingTransform("<=="));
-	const writer = new LoggingTransform("==>");
-	writer.pipe(process.stdin);
-
-	return Promise.resolve({ reader, writer });
+		return Promise.resolve({ reader, writer });
+	}
 }
 
 class LoggingTransform extends stream.Transform {

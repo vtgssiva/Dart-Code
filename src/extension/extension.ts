@@ -178,7 +178,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 		context.subscriptions.push(new StatusBarVersionTracker(workspaceContext));
 	}
 
-	if (config.previewLsp) {
+	if (config.previewLsp || process.env.DART_CODE_FORCE_LSP) {
 		context.subscriptions.push(initLSP(logger, sdks));
 		isUsingLsp = true;
 	}
@@ -562,6 +562,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 			getLogHeader,
 			initialAnalysis,
 			logger,
+			lspClient,
 			nextAnalysis,
 			packagesTreeProvider: dartPackagesProvider,
 			pubGlobal,
