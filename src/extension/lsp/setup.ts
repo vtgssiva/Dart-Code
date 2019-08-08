@@ -41,6 +41,8 @@ function spawn(logger: Logger, sdks: Sdks): Thenable<StreamInfo> {
 	const args = getAnalyzerArgs(logger, sdks, true);
 
 	const process = safeSpawn(undefined, vmPath, args);
+	// TODO: Set up logging for LSP.
+	// logProcess(logger, LogCategory.Analyzer, process);
 
 	if (true) {
 		return Promise.resolve({ reader: process.stdout, writer: process.stdin });
