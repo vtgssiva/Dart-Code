@@ -38,7 +38,7 @@ function spawn(logger: Logger, sdks: Sdks): Thenable<StreamInfo> {
 	// TODO: Replace with constructing an Analyzer that passes LSP flag (but still reads config
 	// from paths etc) and provide it's process.
 	const vmPath = path.join(sdks.dart, dartVMPath);
-	const args = getAnalyzerArgs(logger, sdks, config.previewLsp);
+	const args = getAnalyzerArgs(logger, sdks, true);
 
 	const process = safeSpawn(undefined, vmPath, args);
 
