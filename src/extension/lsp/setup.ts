@@ -10,15 +10,12 @@ import { safeSpawn } from "../utils/processes";
 
 export let lspClient: LanguageClient;
 
-export function initLSP(logger: Logger, sdks: Sdks) {
+export function initLSP(logger: Logger, sdks: Sdks): vs.Disposable {
 	vs.window.showInformationMessage("LSP preview is enabled!");
-	const client = startLsp(logger, sdks);
-	return {
-		dispose: async (): Promise<void> => (await client).dispose(),
-	};
+	return startLsp(logger, sdks);
 }
 
-async function startLsp(logger: Logger, sdks: Sdks): Promise<vs.Disposable> {
+function startLsp(logger: Logger, sdks: Sdks): vs.Disposable {
 	const clientOptions: LanguageClientOptions = {
 		initializationOptions: {
 			// 	onlyAnalyzeProjectsWithOpenFiles: true,
