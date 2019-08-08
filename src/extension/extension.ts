@@ -194,12 +194,19 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	context.subscriptions.push(analyzer);
 
 	// Log analysis server startup time when we get the welcome message/version.
-	const connectedEvents = analyzer.registerForServerConnected((sc) => {
-		analytics.analysisServerVersion = sc.version;
-		const analyzerEndTime = new Date();
-		analytics.logAnalyzerStartupTime(analyzerEndTime.getTime() - analyzerStartTime.getTime());
-		connectedEvents.dispose();
-	});
+	if (isUsingLsp) {
+		lspClient.onReady().then(() => {
+			const analyzerEndTime = new Date();
+			analytics.logAnalyzerStartupTime(analyzerEndTime.getTime() - analyzerStartTime.getTime());
+		});
+	} else {
+		const connectedEvents = analyzer.registerForServerConnected((sc) => {
+			analytics.analysisServerVersion = sc.version;
+			const analyzerEndTime = new Date();
+			analytics.logAnalyzerStartupTime(analyzerEndTime.getTime() - analyzerStartTime.getTime());
+			connectedEvents.dispose();
+		});
+	}
 
 	const nextAnalysis = () =>
 		new Promise<void>((resolve, reject) => {
