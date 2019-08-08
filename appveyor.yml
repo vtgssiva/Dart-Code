@@ -8,7 +8,7 @@ environment:
   DART_CODE_FORCE_LSP: true
   matrix:
     - ONLY_RUN_CODE_VERSION: STABLE
-      ONLY_RUN_DART_VERSION: NIGHTLY
+      ONLY_RUN_DART_VERSION: DEV
 
 # Don't build tags.
 skip_tags: true
@@ -55,9 +55,9 @@ install:
       if ($env:ONLY_RUN_DART_VERSION -eq "STABLE") {
         $env:DART_CHANNEL="stable/release"
         $env:FLUTTER_BRANCH="stable"
-      } elseif ($env:ONLY_RUN_DART_VERSION -eq "DEV") {
-        $env:DART_CHANNEL="dev/release"
-        $env:FLUTTER_BRANCH="dev"
+      # } elseif ($env:ONLY_RUN_DART_VERSION -eq "DEV") {
+      #   $env:DART_CHANNEL="dev/release"
+      #   $env:FLUTTER_BRANCH="dev"
       } else {
         $env:DART_CHANNEL="be/raw"
         $env:FLUTTER_BRANCH="master"

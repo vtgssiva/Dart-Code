@@ -13,7 +13,7 @@ env:
     - FLUTTER_TEST=true
     - DART_CODE_FORCE_LSP=true
   matrix:
-    - ONLY_RUN_CODE_VERSION=STABLE ONLY_RUN_DART_VERSION=NIGHTLY
+    - ONLY_RUN_CODE_VERSION=STABLE ONLY_RUN_DART_VERSION=DEV
 
 cache:
   directories:
@@ -46,9 +46,9 @@ before_install:
   - if [[ $ONLY_RUN_DART_VERSION == "STABLE" ]]; then
       export DART_CHANNEL=stable/release;
       export FLUTTER_BRANCH=stable;
-    elif [[ $ONLY_RUN_DART_VERSION == "DEV" ]]; then
-      export DART_CHANNEL=dev/release;
-      export FLUTTER_BRANCH=dev;
+    # elif [[ $ONLY_RUN_DART_VERSION == "DEV" ]]; then
+    #   export DART_CHANNEL=dev/release;
+    #   export FLUTTER_BRANCH=dev;
     else
       export DART_CHANNEL=be/raw;
       export FLUTTER_BRANCH=master;
