@@ -573,6 +573,10 @@ export async function getCompletionsAt(searchText: string, triggerCharacter?: st
 }
 
 export async function getCompletionsViaProviderAt(searchText: string, triggerCharacter?: string): Promise<vs.CompletionItem[]> {
+	// LSP doesn't have a provider, so we'll have to go via the command.
+	if (extApi.lspClient)
+		throw new Error("LSP doesn't support going via provider");
+
 	const position = positionOf(searchText);
 	const results = await extApi.completionItemProvider.provideCompletionItems(
 		currentDoc(),
@@ -608,6 +612,9 @@ export function ensureCompletion(items: vs.CompletionItem[], kind: vs.Completion
 }
 
 export async function resolveCompletion(completion: vs.CompletionItem): Promise<vs.CompletionItem> {
+	if (extApi.lspClient)
+		throw new Error("LSP does not support resolving via the provider");
+
 	const resolved = await extApi.completionItemProvider.resolveCompletionItem!(completion as DelayedCompletionItem, fakeCancellationToken);
 	return resolved || completion;
 }

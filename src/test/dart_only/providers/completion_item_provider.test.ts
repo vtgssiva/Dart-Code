@@ -244,7 +244,9 @@ main() {
 			assert.equal(completion.textEdit, undefined); // We don't use this (we use insertText and range).
 		});
 
-		it("includes auto-import notes on unimported symbols", async () => {
+		it("includes auto-import notes on unimported symbols", async function () {
+			if (extApi.lspClient)
+				this.skip();
 			await setTestContent(`
 main() {
   ProcessInf
