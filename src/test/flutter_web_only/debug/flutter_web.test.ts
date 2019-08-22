@@ -11,7 +11,7 @@ import { DartDebugClient } from "../../dart_debug_client";
 import { ensureFrameCategories, ensureMapEntry, ensureVariable, ensureVariableWithIndex, isExternalPackage, isLocalPackage, isSdkFrame, isUserCode, killFlutterTester } from "../../debug_helpers";
 import { activate, defer, delay, ext, extApi, flutterWebBrokenMainFile, flutterWebHelloWorldBrokenFile, flutterWebHelloWorldExampleSubFolderMainFile, flutterWebHelloWorldFolder, flutterWebHelloWorldGettersFile, flutterWebHelloWorldHttpFile, flutterWebHelloWorldLocalPackageFile, flutterWebHelloWorldMainFile, flutterWebHelloWorldPathFile, flutterWebHelloWorldThrowInExternalPackageFile, flutterWebHelloWorldThrowInLocalPackageFile, flutterWebHelloWorldThrowInSdkFile, getDefinition, getLaunchConfiguration, getPackages, logger, openFile, positionOf, sb, setConfigForTest, waitForResult, watchPromise } from "../../helpers";
 
-describe.only("flutter for web debugger", () => {
+describe("flutter for web debugger", () => {
 	beforeEach("skip for Windows", function () {
 		// Skip on Windows temporarily until we figure out this is:
 		// https://github.com/dart-lang/webdev/issues/514
@@ -178,7 +178,9 @@ describe.only("flutter for web debugger", () => {
 		await Promise.all([
 			dc.configurationSequence(),
 			dc.assertOutputContains("stdout", "Hello, world!"),
-			dc.assertOutputContains("console", "Logging from dart:developer!"),
+			// TODO: Re-add this once it's supported.
+			// https://github.com/dart-lang/webdev/issues/498
+			// dc.assertOutputContains("console", "Logging from dart:developer!"),
 			dc.launch(config),
 		]);
 
@@ -408,8 +410,7 @@ describe.only("flutter for web debugger", () => {
 				line: positionOf("^// BREAKPOINT1").line + 1, // positionOf is 0-based, but seems to want 1-based
 				path: fsPath(flutterWebHelloWorldMainFile),
 				verified: false,
-			}),
-			delay(5000).then(() => dc.terminateRequest()),
+			}).then(() => delay(3000).then(() => dc.terminateRequest())),
 		]);
 
 		assert.equal(didStop, false);
@@ -1077,8 +1078,7 @@ describe.only("flutter for web debugger", () => {
 		await Promise.all([
 			dc.configurationSequence(),
 			dc.waitForEvent("terminated"),
-			dc.launch(config),
-			delay(5000).then(() => dc.terminateRequest()),
+			dc.launch(config).then(() => delay(3000).then(() => dc.terminateRequest())),
 		]);
 
 		assert.equal(didStop, false);
