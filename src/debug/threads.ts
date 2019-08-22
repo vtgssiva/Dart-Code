@@ -156,7 +156,7 @@ export class ThreadManager {
 	public nextDataId: number = 1;
 	public storedData: { [id: number]: StoredData } = {};
 
-	public storeData(thread: ThreadInfo, data: VMResponse): number {
+	public storeData(thread: ThreadInfo | undefined, data: VMResponse): number {
 		const id = this.nextDataId;
 		this.nextDataId++;
 		this.storedData[id] = new StoredData(thread, data);
@@ -169,7 +169,7 @@ export class ThreadManager {
 
 	public removeStoredData(thread: ThreadInfo) {
 		for (const id of Object.keys(this.storedData).map((k) => parseInt(k, 10))) {
-			if (this.storedData[id].thread.num === thread.num)
+			if (this.storedData[id].thread && this.storedData[id].thread.num === thread.num)
 				delete this.storedData[id];
 		}
 	}
@@ -191,13 +191,7 @@ export class ThreadManager {
 }
 
 class StoredData {
-	public thread: ThreadInfo;
-	public data: VMResponse;
-
-	constructor(thread: ThreadInfo, data: VMResponse) {
-		this.thread = thread;
-		this.data = data;
-	}
+	constructor(public readonly thread: ThreadInfo | undefined, public readonly data: { type: string; }) { }
 }
 
 export class ThreadInfo {

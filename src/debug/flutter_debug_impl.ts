@@ -5,7 +5,7 @@ import { FlutterServiceExtension, LogCategory } from "../shared/enums";
 import { DiagnosticsNode, DiagnosticsNodeLevel, DiagnosticsNodeStyle, DiagnosticsNodeType, FlutterErrorData } from "../shared/flutter/structured_errors";
 import { Logger } from "../shared/interfaces";
 import { grey, grey2 } from "../shared/utils/colors";
-import { DartDebugSession } from "./dart_debug_impl";
+import { CustomData, DartDebugSession } from "./dart_debug_impl";
 import { VMEvent } from "./dart_debug_protocol";
 import { FlutterRun } from "./flutter_run";
 import { FlutterRunBase, RunMode } from "./flutter_run_base";
@@ -322,12 +322,12 @@ export class FlutterDebugSession extends DartDebugSession {
 		const headerPrefix = barChar.repeat(8);
 		const headerSuffix = barChar.repeat(Math.max((assumedTerminalSize - error.description.length - 2 - headerPrefix.length), 0));
 		const header = `${headerPrefix} ${error.description} ${headerSuffix}`;
-		this.logToUser(`\n${header}\n`, "stderr", grey2);
+		this.logToUser(`\n${header}\n`, "stderr", { colorText: grey2 });
 		if (error.errorsSinceReload)
 			this.logFlutterErrorSummary(error);
 		else
 			this.logDiagnosticNodeDescendents(error);
-		this.logToUser(`${barChar.repeat(header.length)}\n`, "stderr", grey2);
+		this.logToUser(`${barChar.repeat(header.length)}\n`, "stderr", { colorText: grey2 });
 	}
 
 	private logDiagnosticNodeToUser(node: DiagnosticsNode, { parent, level = 0, blankLineAfterSummary = true }: { parent: DiagnosticsNode; level?: number; blankLineAfterSummary?: boolean }) {
@@ -359,7 +359,15 @@ export class FlutterDebugSession extends DartDebugSession {
 			? (s: string) => s // Leave as default (red stderr)
 			: isHint ? grey2 : grey;
 
-		this.logToUser(`${line}\n`, "stderr", colorText);
+		let errorRef: number | undefined;
+		if (isErrorMessage) {
+			const customFields = new CustomData({ foo: "bar", foo2: "bar2" });
+			const childRef = this.threadManager.storeData(undefined, customFields);
+			const error = new CustomData({ top: "Top level" }, childRef);
+			errorRef = this.threadManager.storeData(undefined, error);
+		}
+
+		this.logToUser(`${line}\n`, "stderr", { colorText, variablesRef: errorRef });
 		if (blankLineAfterSummary && node.level === DiagnosticsNodeLevel.Summary)
 			this.logToUser("\n");
 

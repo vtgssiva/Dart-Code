@@ -800,7 +800,12 @@ export class DartDebugSession extends DebugSession {
 		const data = this.threadManager.getStoredData(variablesReference);
 		const thread = data.thread;
 
-		if (data.data.type === "Frame") {
+		if (data.data.type === "CustomData") {
+			const customData = data.data as CustomData;
+			const variables = Object.keys(customData.fields).map((f) => ({ name: f, value: customData.fields[f], variablesReference: customData.children }));
+			response.body = { variables };
+			this.sendResponse(response);
+		} else if (data.data.type === "Frame") {
 			const frame: VMFrame = data.data as VMFrame;
 			let variables: DebugProtocol.Variable[] = [];
 			if (frame.vars) {
@@ -1717,7 +1722,7 @@ export class DartDebugSession extends DebugSession {
 
 	// Logs a message back to the editor. Does not add its own newlines, you must
 	// provide them!
-	protected logToUser(message: string, category?: string, colorText = (s: string) => s) {
+	protected logToUser(message: string, category?: string, { colorText = (s: string) => s, variablesRef = 0 }: { colorText?: (s: string) => string, variablesRef?: number } = {}) {
 		// Extract stack frames from the message so we can do nicer formatting of them.
 		const frame = this.getStackFrameData(message) || this.getWebStackFrameData(message) || this.getMessageWithUriData(message);
 
@@ -1730,6 +1735,7 @@ export class DartDebugSession extends DebugSession {
 		}
 
 		const output = new OutputEvent(`${applyColor(message, colorText)}`, category) as OutputEvent & DebugProtocol.OutputEvent;
+		output.body.variablesReference = variablesRef;
 
 		// If the output line looks like a stack frame with users code, attempt to link it up to make
 		// it clickable.
@@ -1768,6 +1774,11 @@ export interface InstanceWithEvaluateName extends VMInstanceRef {
 	// Null means we use the name
 	// Otherwise we use the string
 	evaluateName: string | null | undefined;
+}
+
+export class CustomData {
+	public readonly type = "CustomData";
+	constructor(public readonly fields: { [key: string]: string }, public readonly children?: number) { }
 }
 
 export type VmExceptionMode = "None" | "Unhandled" | "All";
