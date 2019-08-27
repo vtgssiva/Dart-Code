@@ -45,7 +45,18 @@ task:
   install_dependencies_script: |
     echo Misc setup
     export ELECTRON_NO_ATTACH_CONSOLE=1
-    #gem install dpl
+    if [[ "$OS" == "linux" ]]; then
+      apt-get update
+      apt-get -y install curl wget git ruby2.5 gnupg
+      curl -sL https://deb.nodesource.com/setup_8.x | bash -
+      apt-get -y install nodejs
+      gem install dpl
+    fi;
+    if [[ "$OS" == "darwin" ]]; then
+      brew install node
+      sudo gem install dpl
+    fi;
+    gem install dpl
     echo Setting variables...
     mkdir -p with\ spaces
     cd with\ spaces
@@ -133,10 +144,10 @@ task:
     cp -v /tmp/exthost-*.cpuprofile .dart_code_test_logs || true
 
   upload_logs_script: |
-    # if [ -z "$CIRRUS_PR" ]; then
-    #   dpl --provider=s3 --bucket="test-results.dartcode.org" --skip_cleanup=true --local-dir=".test_results" --upload-dir="$CIRRUS_BRANCH/$CIRRUS_CHANGE_IN_REPO/$OS" --acl=public_read --default_text_charset=utf-8;
-    #   dpl --provider=s3 --bucket="test-results.dartcode.org" --skip_cleanup=true --local-dir=".dart_code_test_logs" --upload-dir="logs/$CIRRUS_BRANCH/$CIRRUS_CHANGE_IN_REPO/$OS" --acl=public_read --default_text_charset=utf-8;
-    # fi
+    if [ -z "$CIRRUS_PR" ]; then
+      dpl --provider=s3 --bucket="test-results.dartcode.org" --skip_cleanup=true --local-dir=".test_results" --upload-dir="$CIRRUS_BRANCH/$CIRRUS_CHANGE_IN_REPO/$OS" --acl=public_read --default_text_charset=utf-8;
+      dpl --provider=s3 --bucket="test-results.dartcode.org" --skip_cleanup=true --local-dir=".dart_code_test_logs" --upload-dir="logs/$CIRRUS_BRANCH/$CIRRUS_CHANGE_IN_REPO/$OS" --acl=public_read --default_text_charset=utf-8;
+    fi
     if [ $DART_CHANNEL == "stable" ] && [ $CODE_CHANNEL == "stable" ]; then
       ./cc-test-reporter after-build;
     fi
