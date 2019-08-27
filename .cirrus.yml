@@ -61,6 +61,11 @@ task:
       git remote set-url origin https://github.com/flutter/flutter.git;
     fi
     git fetch
+    if [[ "$DART_CHANNEL" == "stable" ]]; then
+      export FLUTTER_BRANCH=beta
+    else
+      export FLUTTER_BRANCH=master
+    fi;
     git reset --hard origin/$FLUTTER_BRANCH
     git checkout $FLUTTER_BRANCH --
     cd ..
