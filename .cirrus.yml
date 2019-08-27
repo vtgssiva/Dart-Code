@@ -148,8 +148,8 @@ task:
   always:
     upload_logs_script: |
       if [ -z "$CIRRUS_PR" ]; then
-        dpl --provider=s3 --bucket="test-results.dartcode.org" --skip_cleanup=true --local-dir=".test_results" --upload-dir="$CIRRUS_BRANCH/$CIRRUS_CHANGE_IN_REPO/$OS" --acl=public_read --default_text_charset=utf-8;
-        dpl --provider=s3 --bucket="test-results.dartcode.org" --skip_cleanup=true --local-dir=".dart_code_test_logs" --upload-dir="logs/$CIRRUS_BRANCH/$CIRRUS_CHANGE_IN_REPO/$OS" --acl=public_read --default_text_charset=utf-8;
+        sudo dpl --provider=s3 --bucket="test-results.dartcode.org" --skip_cleanup=true --local-dir=".test_results" --upload-dir="$CIRRUS_BRANCH/$CIRRUS_CHANGE_IN_REPO/$OS" --acl=public_read --default_text_charset=utf-8;
+        sudo dpl --provider=s3 --bucket="test-results.dartcode.org" --skip_cleanup=true --local-dir=".dart_code_test_logs" --upload-dir="logs/$CIRRUS_BRANCH/$CIRRUS_CHANGE_IN_REPO/$OS" --acl=public_read --default_text_charset=utf-8;
       fi
       if [ $DART_CHANNEL == "stable" ] && [ $CODE_CHANNEL == "stable" ]; then
         ./cc-test-reporter after-build;
