@@ -40,7 +40,7 @@ task:
           CODE_VERSION: STABLE
           CODE_VERSION: DEV
 
-  only_if: $CIRRUS_TAG == "" ($CIRRUS_BRANCH == "master" || [ $ONLY_RUN_DART_VERSION == $ONLY_RUN_CODE_VERSION ])
+  only_if: $CIRRUS_TAG == "" && ($CIRRUS_BRANCH == "master" || [ $ONLY_RUN_DART_VERSION == $ONLY_RUN_CODE_VERSION ])
 
   install_dependencies_script: |
     echo Misc setup
