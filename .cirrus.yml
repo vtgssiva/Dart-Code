@@ -40,7 +40,8 @@ task:
           CODE_VERSION: stable
           CODE_VERSION: insiders
 
-  only_if: $CIRRUS_TAG == "" && ($CIRRUS_BRANCH == "master" || [ $DART_CHANNEL == $CODE_VERSION ])
+  # only_if: $CIRRUS_TAG == "" && ($CIRRUS_BRANCH == "master" || [ $DART_CHANNEL == $CODE_VERSION ])
+  only_if: $CIRRUS_BRANCH == "master" || $DART_CHANNEL == $CODE_VERSION
 
   install_dependencies_script: |
     echo Misc setup
