@@ -88,16 +88,19 @@ task:
     fi
     export FLUTTER_PATH=`pwd`/flutter
     export DART_PATH=`pwd`/dart-sdk
-    To ensure we follow symlinks properly, put links
-    in folders that we'll use in PATHs.
+
+    # To ensure we follow symlinks properly, put links
+    # in folders that we'll use in PATHs.
     mkdir dartsymlinkbins
     ln -s ../dart-sdk/bin/dart dartsymlinkbins/dart
     mkdir fluttersymlinkbins
     ln -s ../flutter/bin/flutter fluttersymlinkbins/flutter
-    To ensure we detectonly detect real SDKs and not non-Dartlang
-    dart binaries, add a fake dart that is actually just echo
+
+    # To ensure we detect only detect real SDKs and not non-Dartlang
+    # dart binaries, add a fake dart that is actually just echo
     mkdir fakedart
     ln -s /bin/echo fakedart/dart
+
     export DART_PATH_SYMLINK=`pwd`/fakedart:`pwd`/dartsymlinkbins
     export FLUTTER_PATH_SYMLINK=`pwd`/fluttersymlinkbins
     dart-sdk/bin/dart --version
@@ -114,7 +117,7 @@ task:
     dart-sdk/bin/pub global activate --no-executables json_annotation 1.2.0
     dart-sdk/bin/pub global activate --no-executables devtools
     dart-sdk/bin/pub global activate --no-executables webdev
-    These shouldn't be activated, but might be in the pub cache that CI restored
+    # These shouldn't be activated, but might be in the pub cache that CI restored
     dart-sdk/bin/pub global deactivate path || true
     dart-sdk/bin/pub global deactivate usage || true
     cd ..
