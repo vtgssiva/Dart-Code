@@ -56,7 +56,6 @@ task:
       brew install node
       sudo gem install dpl
     fi;
-    gem install dpl
     echo Setting variables...
     mkdir -p with\ spaces
     cd with\ spaces
