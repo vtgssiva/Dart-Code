@@ -50,7 +50,7 @@ task:
     mkdir -p with\ spaces
     cd with\ spaces
     echo Downloading Dart and Flutter...
-    curl https://storage.googleapis.com/dart-archive/channels/$DART_CHANNEL/latest/sdk/dartsdk-$DART_OS-x64-release.zip > dart-sdk.zip
+    curl https://storage.googleapis.com/dart-archive/channels/$DART_CHANNEL/release/latest/sdk/dartsdk-$DART_OS-x64-release.zip > dart-sdk.zip
     unzip dart-sdk.zip > /dev/null
     mkdir -p flutter
     cd flutter
