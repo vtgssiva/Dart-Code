@@ -23,40 +23,30 @@ task:
       env:
         DART_OS: linux
         matrix:
-          DART_CHANNEL: STABLE
-          DART_CHANNEL: DEV
+          DART_CHANNEL: stable
+          DART_CHANNEL: dev
         matrix:
-          CODE_VERSION: STABLE
-          CODE_VERSION: DEV
+          CODE_VERSION: stable
+          CODE_VERSION: insiders
     - name: Mac
       osx_instance:
         image: high-sierra-base
       env:
         DART_OS: macos
         matrix:
-          DART_CHANNEL: STABLE
-          DART_CHANNEL: DEV
+          DART_CHANNEL: stable
+          DART_CHANNEL: dev
         matrix:
-          CODE_VERSION: STABLE
-          CODE_VERSION: DEV
+          CODE_VERSION: stable
+          CODE_VERSION: insiders
 
-  only_if: $CIRRUS_TAG == "" && ($CIRRUS_BRANCH == "master" || [ $ONLY_RUN_DART_VERSION == $ONLY_RUN_CODE_VERSION ])
+  only_if: $CIRRUS_TAG == "" && ($CIRRUS_BRANCH == "master" || [ $DART_CHANNEL == $CODE_VERSION ])
 
   install_dependencies_script: |
     echo Misc setup
     export ELECTRON_NO_ATTACH_CONSOLE=1
     gem install dpl
     echo Setting variables...
-    if [[ $ONLY_RUN_DART_VERSION == "STABLE" ]]; then
-      export DART_CHANNEL=stable/release;
-      export FLUTTER_BRANCH=stable;
-    elif [[ $ONLY_RUN_DART_VERSION == "DEV" ]]; then
-      export DART_CHANNEL=dev/release;
-      export FLUTTER_BRANCH=dev;
-    else
-      export DART_CHANNEL=be/raw;
-      export FLUTTER_BRANCH=master;
-    fi
     mkdir -p with\ spaces
     cd with\ spaces
     echo Downloading Dart and Flutter...
@@ -77,7 +67,7 @@ task:
     echo Configuring Dart and Flutter...
     flutter/bin/flutter config --no-analytics
     flutter/bin/flutter update-packages
-    if [[ $ONLY_RUN_DART_VERSION != "STABLE" ]]; then
+    if [[ $DART_CHANNEL != "stable" ]]; then
       flutter/bin/flutter config --enable-web;
     fi
     export FLUTTER_PATH=`pwd`/flutter
@@ -142,6 +132,6 @@ task:
       dpl --provider=s3 --bucket="test-results.dartcode.org" --skip_cleanup=true --local-dir=".test_results" --upload-dir="$CIRRUS_BRANCH/$CIRRUS_CHANGE_IN_REPO/$OS" --acl=public_read --default_text_charset=utf-8;
       dpl --provider=s3 --bucket="test-results.dartcode.org" --skip_cleanup=true --local-dir=".dart_code_test_logs" --upload-dir="logs/$CIRRUS_BRANCH/$CIRRUS_CHANGE_IN_REPO/$OS" --acl=public_read --default_text_charset=utf-8;
     fi
-    if [ $ONLY_RUN_CODE_VERSION == "STABLE" ] && [ $ONLY_RUN_DART_VERSION == "STABLE" ]; then
+    if [ $DART_CHANNEL == "stable" ] && [ $CODE_CHANNEL == "stable" ]; then
       ./cc-test-reporter after-build;
     fi
