@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import * as vs from "vscode";
-import { activate, ensureDocumentSymbol, flutterHelloWorldMainFile, getDocumentSymbols, getPackages } from "../../helpers";
+import { activate, ensureDocumentSymbol, extApi, flutterHelloWorldMainFile, getDocumentSymbols, getPackages } from "../../helpers";
 
 describe.only("dart_document_symbol_provider", () => {
 
@@ -10,6 +10,11 @@ describe.only("dart_document_symbol_provider", () => {
 
 	it("returns expected items for 'flutter/hello_world'", async () => {
 		const symbols = await getDocumentSymbols();
+
+		const documentSymbolResult = await (vs.commands.executeCommand("vscode.executeDocumentSymbolProvider", flutterHelloWorldMainFile) as Thenable<vs.DocumentSymbol[]>);
+		console.log(JSON.stringify(documentSymbolResult, undefined, 4));
+		const outline = await extApi.fileTracker.getOutlineFor(flutterHelloWorldMainFile);
+		console.log(JSON.stringify(outline, undefined, 4));
 
 		assert.ok(symbols && symbols.length, "Didn't get any symbols");
 
