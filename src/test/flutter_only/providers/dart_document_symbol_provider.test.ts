@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import * as vs from "vscode";
-import { activate, ensureDocumentSymbol, extApi, flutterHelloWorldMainFile, getDocumentSymbols, getPackages } from "../../helpers";
+import { activate, currentDoc, ensureDocumentSymbol, extApi, flutterHelloWorldMainFile, getDocumentSymbols, getPackages } from "../../helpers";
 
 describe("dart_document_symbol_provider", () => {
 
@@ -15,6 +15,7 @@ describe("dart_document_symbol_provider", () => {
 		console.log(JSON.stringify(documentSymbolResult, undefined, 4));
 		const outline = await extApi.fileTracker.getOutlineFor(flutterHelloWorldMainFile);
 		console.log(JSON.stringify(outline, undefined, 4));
+		console.log(JSON.stringify({ content: currentDoc().getText() }, undefined, 4));
 
 		assert.ok(symbols && symbols.length, "Didn't get any symbols");
 
