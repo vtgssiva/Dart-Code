@@ -2,7 +2,7 @@ import * as assert from "assert";
 import * as vs from "vscode";
 import { activate, ensureDocumentSymbol, extApi, flutterHelloWorldMainFile, getDocumentSymbols, getPackages } from "../../helpers";
 
-describe.only("dart_document_symbol_provider", () => {
+describe("dart_document_symbol_provider", () => {
 
 	// We have tests that require external packages.
 	before("get packages", () => getPackages());
