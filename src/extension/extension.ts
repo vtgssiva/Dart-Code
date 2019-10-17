@@ -37,6 +37,7 @@ import { cursorIsInTest, TestCommands } from "./commands/test";
 import { TypeHierarchyCommand } from "./commands/type_hierarchy";
 import { config } from "./config";
 import { ClosingLabelsDecorations } from "./decorations/closing_labels_decorations";
+import { DoubleIndentDecorations } from "./decorations/double_indent";
 import { FlutterUiGuideDecorations } from "./decorations/flutter_ui_guides_decorations";
 import { HotReloadCoverageDecorations } from "./decorations/hot_reload_coverage_decorations";
 import { setUpDaemonMessageHandler } from "./flutter/daemon_message_handler";
@@ -336,6 +337,8 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 
 	if (config.previewFlutterUiGuides)
 		context.subscriptions.push(new FlutterUiGuideDecorations(analyzer));
+
+	context.subscriptions.push(new DoubleIndentDecorations());
 
 	// Setup that requires server version/capabilities.
 	const connectedSetup = analyzer.registerForServerConnected((sc) => {
