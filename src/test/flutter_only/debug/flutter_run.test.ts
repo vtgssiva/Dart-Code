@@ -167,6 +167,7 @@ import { activate, defer, delay, ext, extApi, fileSafeCurrentTestName, flutterHe
 		it("can quit during a build", async () => {
 			const config = await startDebugger(flutterHelloWorldMainFile);
 			// Kick off a build, but do not await it...
+			// tslint:disable-next-line: no-floating-promises
 			Promise.all([
 				dc.configurationSequence(),
 				dc.launch(config),
@@ -410,6 +411,7 @@ import { activate, defer, delay, ext, extApi, fileSafeCurrentTestName, flutterHe
 			config.noDebug = true;
 
 			let didStop = false;
+			// tslint:disable-next-line: no-floating-promises
 			dc.waitForEvent("stopped").then(() => didStop = true);
 			await Promise.all([
 				dc.waitForEvent("terminated"),
@@ -1041,6 +1043,7 @@ import { activate, defer, delay, ext, extApi, fileSafeCurrentTestName, flutterHe
 			config.noDebug = true;
 
 			let didStop = false;
+			// tslint:disable-next-line: no-floating-promises
 			dc.waitForEvent("stopped").then(() => didStop = true);
 			await Promise.all([
 				dc.configurationSequence()
