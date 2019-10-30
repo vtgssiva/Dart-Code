@@ -19,6 +19,8 @@ export class TestCommands implements vs.Disposable {
 	private disposables: vs.Disposable[] = [];
 
 	constructor(private readonly logger: Logger) {
+		console.log("Registering test command handlers!");
+		logger.info("Registering test command handlers!");
 		this.disposables.push(
 			vs.commands.registerCommand("dart.runTestAtCursor", () => this.runTestAtCursor(false), this),
 			vs.commands.registerCommand("dart.goToTestOrImplementationFile", () => this.goToTestOrImplementationFile(), this),
@@ -26,6 +28,8 @@ export class TestCommands implements vs.Disposable {
 			vs.window.onDidChangeTextEditorSelection((e) => this.updateSelectionContexts(e)),
 			vs.window.onDidChangeActiveTextEditor((e) => this.updateEditorContexts(e)),
 		);
+		console.log("Done!");
+		logger.info("Done!");
 	}
 
 	private async runTestAtCursor(debug: boolean): Promise<void> {

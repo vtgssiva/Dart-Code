@@ -418,6 +418,8 @@ export async function activate(context: vs.ExtensionContext, isRestart: boolean 
 	context.subscriptions.push(new GoToSuperCommand(analyzer));
 	context.subscriptions.push(new LoggingCommands(logger, context.logPath));
 	context.subscriptions.push(new OpenInOtherEditorCommands(logger, sdks));
+	console.log("Registering test commands!");
+	logger.info("Registering test commands!");
 	context.subscriptions.push(new TestCommands(logger));
 
 	// Register our view providers.
