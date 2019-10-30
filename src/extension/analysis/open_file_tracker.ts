@@ -133,7 +133,7 @@ export const openFileTracker = {
 	getOutlineFor(file: Uri): Outline | undefined {
 		const o = outlines[fsPath(file)];
 		if (o) {
-			console.log(`There is an outline for ${fsPath(file)} with ${o.children ? "no children" : `${o.children!.length} children`}`);
+			console.log(`There is an outline for ${fsPath(file)} with ${o.children ? `${o.children.length} children` : "no children"}`);
 		} else {
 			console.log(`There's no outline for ${fsPath(file)}`);
 		}
