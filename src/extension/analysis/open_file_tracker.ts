@@ -1,6 +1,7 @@
 import { Disposable, TextDocument, Uri, window, workspace } from "vscode";
 import { FlutterOutline, FoldingRegion, Occurrences, Outline } from "../../shared/analysis_server_types";
 import { IAmDisposable, Logger } from "../../shared/interfaces";
+import { hasPackagesFile, hasPubspec } from "../../shared/utils/fs";
 import { fsPath } from "../../shared/vscode/utils";
 import { WorkspaceContext } from "../../shared/workspace";
 import { locateBestProjectRoot } from "../project";
@@ -150,10 +151,16 @@ export const openFileTracker = {
 
 	supportsPubRunTest(file: Uri): boolean | undefined {
 		const path = fsPath(file);
-		if (!util.isPubRunnableTestFile(path))
+		if (!util.isPubRunnableTestFile(path)) {
+			console.log(`${path} is not pub runnable test file`);
 			return false;
+		}
 		if (pubRunTestSupport[path] === undefined) {
 			const projectRoot = locateBestProjectRoot(path);
+			console.log(`located best root at ${projectRoot}`);
+			if (projectRoot) {
+				console.log(`${hasPackagesFile(projectRoot)} && ${hasPubspec(projectRoot)}`);
+			}
 			pubRunTestSupport[path] = !!(projectRoot && util.checkProjectSupportsPubRunTest(projectRoot));
 		}
 		return pubRunTestSupport[fsPath(file)];

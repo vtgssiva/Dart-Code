@@ -148,8 +148,8 @@ export class TestCommands implements vs.Disposable {
 		// We should only allow running for projects we know can actually handle `pub run` (for ex. the
 		// SDK codebase cannot, and will therefore run all tests).
 		if (!openFileTracker.supportsPubRunTest(document.uri)) {
-			console.log("does not support pub run test");
-			this.logger.info("does not support pub run test");
+			console.log(`${document.uri} does not support pub run test`);
+			this.logger.info(`${document.uri} does not support pub run test`);
 			return;
 		}
 
