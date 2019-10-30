@@ -125,21 +125,36 @@ export class TestCommands implements vs.Disposable {
 	}
 
 	private testForCursor(editor: vs.TextEditor): TestOutlineInfo | undefined {
+		console.log("Checking if cursor is in test");
+		this.logger.info("Checking if cursor is in test");
 		const document = editor.document;
 		const outline = openFileTracker.getOutlineFor(document.uri);
-		if (!outline || !outline.children || !outline.children.length)
+		if (!outline || !outline.children || !outline.children.length) {
+			console.log("no outline, or no outline children");
+			this.logger.info("no outline, or no outline children");
 			return;
+		}
 
 		// We should only allow running for projects we know can actually handle `pub run` (for ex. the
 		// SDK codebase cannot, and will therefore run all tests).
-		if (!openFileTracker.supportsPubRunTest(document.uri))
+		if (!openFileTracker.supportsPubRunTest(document.uri)) {
+			console.log("does not support pub run test");
+			this.logger.info("does not support pub run test");
 			return;
+		}
 
 		const visitor = new TestOutlineVisitor(this.logger);
 		visitor.visit(outline);
+		console.log(`found ${visitor.tests.length} tests`);
+		this.logger.info(`found ${visitor.tests.length} tests`);
+
 		return visitor.tests.reverse().find((t) => {
 			const start = document.positionAt(t.offset);
 			const end = document.positionAt(t.offset + t.length);
+
+			console.log(`comparing ${t.offset}-${t.offset + t.length} to ${document.offsetAt(editor.selection.start)}-${document.offsetAt(editor.selection.end)}`);
+			this.logger.info(`comparing ${t.offset}-${t.offset + t.length} to ${document.offsetAt(editor.selection.start)}-${document.offsetAt(editor.selection.end)}`);
+
 			return new vs.Range(start, end).contains(editor.selection);
 		});
 	}
