@@ -12,11 +12,9 @@ describe("run test at cursor", () => {
 		await waitForResult(() => !!extApi.fileTracker.getOutlineFor(helloWorldTestMainFile));
 	});
 
-	it.only("command is available when cursor is inside a test", async () => {
+	it("command is available when cursor is inside a test", async () => {
 		const editor = await openFile(helloWorldTestMainFile);
-		extApi.logger.info("Setting selection!");
 		editor.selection = new vs.Selection(positionOf("expect^("), positionOf("^expect("));
-		extApi.logger.info("Done!");
 
 		// Allow some time to check, because the flag is flipped in a selection change handler
 		await waitForResult(() => extApi.cursorIsInTest);
