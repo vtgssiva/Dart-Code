@@ -91,7 +91,7 @@ async function runAllTests(): Promise<void> {
 		throw new Error("Could not find Flutter SDK");
 
 	testEnv.DART_CODE_IS_TEST_RUN = true;
-	testEnv.MOCHA_FORBID_ONLY = true;
+	// testEnv.MOCHA_FORBID_ONLY = true;
 
 	// Ensure any necessary folders exist.
 	if (!fs.existsSync(".nyc_output"))
@@ -104,23 +104,23 @@ async function runAllTests(): Promise<void> {
 	const runFlutterTests = !process.env.RUN_TESTS || process.env.RUN_TESTS === "flutter";
 	try {
 		if (runDartTests) {
-			await runTests("not_activated/dart_create", "empty", dartSdkPath, codeVersion);
-			await runTests("dart_create_tests", "dart_create_tests.code-workspace", dartSdkPath, codeVersion);
+			// await runTests("not_activated/dart_create", "empty", dartSdkPath, codeVersion);
+			// await runTests("dart_create_tests", "dart_create_tests.code-workspace", dartSdkPath, codeVersion);
 			await runTests("dart_only", "hello_world", dartSdkPath, codeVersion);
 		}
 		if (runFlutterTests) {
 			await runTests("multi_root", "projects.code-workspace", flutterSdkPath, codeVersion);
-			await runTests("multi_project_folder", "", flutterSdkPath, codeVersion);
-			await runTests("not_activated/flutter_create", "empty", flutterSdkPath, codeVersion);
-			await runTests("flutter_create_tests", "flutter_create_tests.code-workspace", flutterSdkPath, codeVersion);
-			await runTests("flutter_only", "flutter_hello_world", flutterSdkPath, codeVersion);
-			await runTests("flutter_web_only", "flutter_web", flutterSdkPath, codeVersion);
-			if (flutterRoot) {
-				await runTests("flutter_repository", flutterRoot, flutterSdkPath, codeVersion);
-			} else {
-				console.error("FLUTTER_ROOT/FLUTTER_PATH NOT SET, SKIPPING FLUTTER REPO TESTS");
-				exitCode = 1;
-			}
+			// await runTests("multi_project_folder", "", flutterSdkPath, codeVersion);
+			// await runTests("not_activated/flutter_create", "empty", flutterSdkPath, codeVersion);
+			// await runTests("flutter_create_tests", "flutter_create_tests.code-workspace", flutterSdkPath, codeVersion);
+			// await runTests("flutter_only", "flutter_hello_world", flutterSdkPath, codeVersion);
+			// await runTests("flutter_web_only", "flutter_web", flutterSdkPath, codeVersion);
+			// if (flutterRoot) {
+			// 	await runTests("flutter_repository", flutterRoot, flutterSdkPath, codeVersion);
+			// } else {
+			// 	console.error("FLUTTER_ROOT/FLUTTER_PATH NOT SET, SKIPPING FLUTTER REPO TESTS");
+			// 	exitCode = 1;
+			// }
 		}
 	} catch (e) {
 		exitCode = 1;
