@@ -63,7 +63,11 @@ export class TestCommands implements vs.Disposable {
 	}
 
 	private updateSelectionContexts(e: vs.TextEditorSelectionChangeEvent): void {
+		this.logger.info("Editor selection changed!");
+		console.log("Editor selection changed!");
 		const isValidTestLocation = !!(e.textEditor && e.selections && e.selections.length === 1 && this.testForCursor(e.textEditor));
+		this.logger.info(`Valid test location? ${isValidTestLocation}`);
+		console.log(`Valid test location? ${isValidTestLocation}`);
 		vs.commands.executeCommand("setContext", CURSOR_IS_IN_TEST, isValidTestLocation);
 		cursorIsInTest = isValidTestLocation;
 	}
