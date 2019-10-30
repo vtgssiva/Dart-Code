@@ -129,9 +129,19 @@ export class TestCommands implements vs.Disposable {
 		this.logger.info("Checking if cursor is in test");
 		const document = editor.document;
 		const outline = openFileTracker.getOutlineFor(document.uri);
+		if (!outline) {
+			console.log("no outline");
+			this.logger.info("no outline");
+			return;
+		}
 		if (!outline || !outline.children || !outline.children.length) {
-			console.log("no outline, or no outline children");
-			this.logger.info("no outline, or no outline children");
+			console.log("or no outline children array");
+			this.logger.info("no outline children array");
+			return;
+		}
+		if (!outline || !outline.children || !outline.children.length) {
+			console.log("no outline children");
+			this.logger.info("no outline children");
 			return;
 		}
 

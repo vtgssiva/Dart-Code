@@ -131,7 +131,13 @@ export const openFileTracker = {
 	},
 
 	getOutlineFor(file: Uri): Outline | undefined {
-		return outlines[fsPath(file)];
+		const o = outlines[fsPath(file)];
+		if (o) {
+			console.log(`There is an outline for ${fsPath(file)} with ${o.children ? "no children" : `${o.children!.length} children`}`);
+		} else {
+			console.log(`There's no outline for ${fsPath(file)}`);
+		}
+		return o;
 	},
 
 	getFlutterOutlineFor(file: Uri): FlutterOutline | undefined {

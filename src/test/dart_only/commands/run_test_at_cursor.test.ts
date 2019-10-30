@@ -14,6 +14,8 @@ describe("run test at cursor", () => {
 		const editor = await openFile(helloWorldTestMainFile);
 		editor.selection = new vs.Selection(positionOf("expect^("), positionOf("^expect("));
 
+		console.log(`doc contents:\n      ` + editor.document.getText().replace(/\n/g, "\n         "));
+
 		// Allow some time to check, because the flag is flipped in a selection change handler
 		await waitForResult(() => extApi.cursorIsInTest);
 
