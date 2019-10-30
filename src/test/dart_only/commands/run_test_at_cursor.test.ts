@@ -12,6 +12,7 @@ describe("run test at cursor", () => {
 
 	it("command is available when cursor is inside a test", async () => {
 		const editor = await openFile(helloWorldTestMainFile);
+		console.log(`Got open ${editor.document.uri}`);
 		editor.selection = new vs.Selection(positionOf("expect^("), positionOf("^expect("));
 
 		console.log(`doc contents:\n      ` + editor.document.getText().replace(/\n/g, "\n         "));
